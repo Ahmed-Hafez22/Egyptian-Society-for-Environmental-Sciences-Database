@@ -4,8 +4,8 @@ from Database import *
 
 # Functions
 def show_menu():  # A function to print out the menu
-    print("Welcome to Catrina's Database!!")
-    print("------------------------------")
+    print("Welcome to Egyptian Society for Environmental Sciences's Database!!")
+    print("--------------------------------------------------------------------")
     print(
         "Operation List:\n1-Import Excel File\n2-Register a New Member\n3-Show Members\n4-Check Member Information\n5-Edit Member Information\n6-Delete member\n7-Exit"
     )
@@ -518,4 +518,5 @@ def delete_member():
         print(f"{name[0]} got deleted Successfully")
         cur.execute("DELETE FROM members_info WHERE id = (?)", (member_choice,))
     else:
+
         print("Id isn't in the wanted list")
