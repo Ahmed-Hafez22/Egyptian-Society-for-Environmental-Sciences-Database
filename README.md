@@ -61,19 +61,6 @@ Badges (optional):
 
 ---
 
-## 🗄 Database Schema
-
-The database schema is defined in [Database.py`](Database.py).  
-You can initialize the database by running:
-
-```bash
-sqlite3 society.db < Database.py
-```
-
-This will create the necessary tables (e.g., `Members`, `Activities`, etc.) for the project.  
-
----
-
 ## 🤝 Contributing
 1. Fork the repository  
 2. Create a new branch (`git checkout -b feature-branch`)  
