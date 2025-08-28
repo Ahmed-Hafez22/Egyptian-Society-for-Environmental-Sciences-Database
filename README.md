@@ -10,7 +10,6 @@ It provides functionality for handling data operations, database queries, and mo
 - **`Functions.py`** – Core project functions and utilities.  
 - **`libraries.py`** – Required libraries and helper modules.  
 - **`main.py`** – Entry point to run the application.  
-- **`schema.sql`** *(optional but recommended)* – SQL script for database schema and initialization.  
 
 ---
 
@@ -64,11 +63,11 @@ Badges (optional):
 
 ## 🗄 Database Schema
 
-The database schema is defined in [`schema.sql`](schema.sql).  
+The database schema is defined in [Database.py`](Database.py).  
 You can initialize the database by running:
 
 ```bash
-sqlite3 society.db < schema.sql
+sqlite3 society.db < Database.py
 ```
 
 This will create the necessary tables (e.g., `Members`, `Activities`, etc.) for the project.  
