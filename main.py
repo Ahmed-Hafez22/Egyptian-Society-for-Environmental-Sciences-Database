@@ -25,7 +25,7 @@ while flag == True:
         else:
             print("Invalid Choice")
     except Exception as e:
-        print(f"An unexpected error has Occured: {e}")
+        print(f"An unexpected error has Occured: {e}") #Prevent Error
 # Close Database Connection
 con.commit()
 con.close()
