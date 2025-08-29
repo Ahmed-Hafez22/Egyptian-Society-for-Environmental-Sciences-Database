@@ -1,7 +1,7 @@
 from libraries import *
 
 # ----------------------
-con = connect("Catrina.db")
+con = connect("ESES.db")
 cur = con.cursor()
 # ----------------------
 cur.execute(
