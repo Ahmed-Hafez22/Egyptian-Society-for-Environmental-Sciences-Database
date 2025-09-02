@@ -20,7 +20,7 @@ def take_user_input():  # A function to store teh user input
 def import_excel_file(): # importing the data into th db
     try:
         base_folder = (
-            r"C:\Work\Programming\Catrina"  # A base folder to search for the excel file
+            r"F:\Programming\projects\Egyptian Society for Environmental Sciences"  # A base folder to search for the excel file
         )
         excel_file_name = input(
             "Enter the Excel file name: "
@@ -34,26 +34,17 @@ def import_excel_file(): # importing the data into th db
         sheet_name_locally = input(
             "Enter the sheet name: "
         )  # Taking the name of the Sheet where the data is stored
-        data = read_excel(
+        data = pd.read_excel(
             excel_file_final, dtype={"phone_number": str}, sheet_name=sheet_name_locally
         )
         # ----------------------------------------------
         data = check_emails(data)
         data = check_duplicates(data)  # Calling check dups to ensure no duplicate members get signed in
         data = phone_num_registration(data)
-        dates_registration(data)  # Calling dates regist. to register formatted reg and exp dates
-        cur.executemany(
-            """
-                        INSERT INTO members_info(member_name, phone_number, registration_date, email, expiration_date)
-                        VALUES (?, ?, ?, ?, ?)
-                        """,
-            data.values.tolist(),
-        )  # Inserting the date after ensuring everything is right
-        set_status()  # Setting member status
-        print("-" * 30)
-        print(
-            f"{excel_file_name} got added succssefully"
-        )  # Telling user file was inserted successfully
+        data = dates_registration(data)  # Calling dates regist. to register formatted reg and exp dates
+        datat = set_status(data)
+        new_excel_name = "editied " + excel_file
+        data.to_excel(new_excel_name, index=False) 
         print("-" * 30)
         con.commit()  # Commiting changes to the database
     except Exception as e:
@@ -125,7 +116,7 @@ def show_members(): # Printing out the members
 
 def check_emails(data):
     try:
-        if isinstance(data, DataFrame):
+        if isinstance(data, pd.DataFrame):
             new_emails = []
             for email in data["member_email"].astype(str).tolist():
                 if "@" in email:
@@ -149,7 +140,7 @@ def check_emails(data):
         
 def phone_num_registration(data):
     try:
-        if isinstance(data, DataFrame):
+        if isinstance(data, pd.DataFrame):
             phone_lst = data["phone_number"].tolist()
             for number in range(len(phone_lst)):
                 if phone_lst[number] == "Not Provided":
@@ -182,7 +173,7 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
     try:
         registered_emails = cur.execute("SELECT email FROM members_info").fetchall()  # Fetching out all the users email from the table
         registered_names = cur.execute("SELECT member_name FROM members_info").fetchall()
-        if isinstance(data, DataFrame):  # An if statement
+        if isinstance(data, pd.DataFrame):  # An if statement
             indices_to_drop = []# An empty list which will be filled later with the index of the duplicated names to drop them from the dataframe
             emails_lst = data[["member_email", "member_name"]].values.tolist()  # putting the new emails in a list to operate on them
             potential_mem_emails = []
@@ -257,7 +248,7 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
 
 def dates_registration(data):
     try:
-        if isinstance(data, DataFrame):
+        if isinstance(data, pd.DataFrame):
             formatted_reg_dates_lst = []  # An empty lst for reg dates
             formatted_exp_dates_lst = []  # An empty lst for exp dates
             for date_str in data.get("reg_date", []):
@@ -278,7 +269,8 @@ def dates_registration(data):
                         formatted_exp_dates_lst.append("Not Provided")
                 
             data["reg_date"] = formatted_reg_dates_lst
-            data["exp_date"] = formatted_exp_dates_lst  # Adding a new column with the exp. dates        
+            data["exp_date"] = formatted_exp_dates_lst  # Adding a new column with the exp. dates     
+            return data   
         else:
             dates_lst = []  # An empty lst for reg dates
             if data == "":
@@ -302,14 +294,24 @@ def dates_registration(data):
         print("-" * 30)
         return None
 
-def set_status(
-    ):  # Setting the status for each user depending on the date
+def set_status(data):  # Setting the status for each user depending on the date
     try:
-        current_date = datetime.now().strftime("%Y-%m-%d")  # Taking today's date for comparison
-        cur.execute("UPDATE members_info SET status = 'Not Provided' WHERE expiration_date = 'Not Provided'")            
-        cur.execute("UPDATE members_info SET status = 'Active' WHERE expiration_date > (?) AND expiration_date != 'Not Provided'", (current_date,))            
-        cur.execute("UPDATE members_info SET status = 'Inactive' WHERE expiration_date < (?) AND expiration_date != 'Not Provided'", (current_date,))            
-        con.commit()
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        status_lst = []
+        if isinstance(data, pd.DataFrame):
+            for date in data['exp_date']:
+                if not isinstance(date, str) or date == "Not Provided":
+                    status = "Not Provided"
+                    status_lst.append(status)
+                    continue
+                if date > current_date:
+                    status = "Active"
+                    status_lst.append(status)
+                elif date < current_date:
+                    status = "Inactive"
+                    status_lst.append(status)
+            data['status'] = status_lst
+            return data
     except Exception as e:
         print(f"An unexpected error has occured: {e}")
         return None
