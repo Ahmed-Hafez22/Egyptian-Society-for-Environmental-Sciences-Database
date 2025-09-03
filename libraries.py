@@ -8,8 +8,8 @@ from arabic_reshaper import *
 from bidi import *
 from re import *
 from fastapi import *
-from sqlalchemy import *
-from sqlalchemy.orm import *
-from typing import List
+from sqlalchemy import event, create_engine, String, inspect
+from sqlalchemy.orm import  Mapped, mapped_column, DeclarativeBase, sessionmaker
+from typing import List, Optional
 import io
 from pydantic import *

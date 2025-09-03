@@ -184,8 +184,8 @@ def dates_registration(data):
                     try:
                         cleaned_date = sub(r'\D', " ", date_str)
                         day, month, year = [int(part) for part in cleaned_date.split()]
-                        formatted_reg_date = datetime(year, month, day).strftime("%Y-%m-%d")  # formatting the reg date into a better form
-                        formatted_exp_date = datetime(year + 1, month, day).strftime("%Y-%m-%d")  # formatting the exp date into a better form
+                        formatted_reg_date = datetime(year, month, day).strftime("%d %m %Y")  # formatting the reg date into a better form
+                        formatted_exp_date = datetime(year + 1, month, day).strftime("%d %m %Y")  # formatting the exp date into a better form
                         formatted_reg_dates_lst.append(formatted_reg_date)  # Adding the reg. date into the lst
                         formatted_exp_dates_lst.append(formatted_exp_date) # Adding the exp. date into the lst
                     except (ValueError, TypeError):
@@ -204,8 +204,8 @@ def dates_registration(data):
                 try:
                     cleaned_date = sub(r'\D', " ", data)
                     day, month, year = [int(part) for part in cleaned_date.split()]
-                    formatted_reg_date = datetime(year, month, day).strftime("%Y-%m-%d")  # formatting the reg date into a better form
-                    formatted_exp_date = datetime(year + 1, month, day).strftime("%Y-%m-%d")  # formatting the exp date into a better formdates_lst.append(formatted_reg_date)
+                    formatted_reg_date = datetime(year, month, day).strftime("%d %m %Y")  # formatting the reg date into a better form
+                    formatted_exp_date = datetime(year + 1, month, day).strftime("%d %m %Y")  # formatting the exp date into a better formdates_lst.append(formatted_reg_date)
                     dates_lst.append(formatted_reg_date) # adding the reg date into the lst
                     dates_lst.append(formatted_exp_date)  # adding the exp date into the lst
                     return dates_lst
@@ -220,7 +220,7 @@ def dates_registration(data):
 #------------------------------------------------------------
 def set_status(data):  # Setting the status for each user depending on the date
     try:
-        current_date = datetime.now().strftime("%Y-%m-%d")
+        current_date = datetime.now().strftime("%d %m %Y")
         status_lst = []
         if isinstance(data, pd.DataFrame):
             for date in data['exp_date']:

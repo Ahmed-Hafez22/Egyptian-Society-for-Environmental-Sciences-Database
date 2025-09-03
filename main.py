@@ -3,7 +3,7 @@ from functions2 import *
 from libraries import *
 from DB import *
 # Main
-show_all_members()
+import_excel_file()
 # flag = True
 # while flag == True:
 #     try:

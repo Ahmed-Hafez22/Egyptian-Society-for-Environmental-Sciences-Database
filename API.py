@@ -1,4 +1,6 @@
 from libraries import *
+from sqlalchemy import event, create_engine, String, inspect
+from sqlalchemy.orm import  Mapped, mapped_column, DeclarativeBase, sessionmaker
 import DB
 import schemas
 
@@ -15,7 +17,7 @@ def get_db():
 
 # 5. API ENDPOINT
 @app.post("/readExcel/", response_model=List[dict])
-async def read_excel(file: UploadFile = File(...), db_session: Session = Depends(get_db)):
+async def read_excel(file: UploadFile = File(...), db_session: sessionmaker = Depends(get_db)):
     """
     Reads an Excel file, validates its content, and stores it in the database.
     """
@@ -54,3 +56,20 @@ async def read_excel(file: UploadFile = File(...), db_session: Session = Depends
         print(f"An error occurred: {e}")
         # Return a more informative error to the client
         raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
+
+
+@app.post("/Create-Member", response_model= schemas.Member)
+def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depends(get_db)):
+    try:
+        new_member = DB.Member(member_name = member.member_name,
+                            member_email = member.member_email,
+                            reg_date = member.reg_date,
+                            phone_number = member.phone_number)
+        db_session.add(new_member)
+        db_session.commit()
+        db_session.refresh(new_member)
+        return new_member
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        # Return a more informative error to the client
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
