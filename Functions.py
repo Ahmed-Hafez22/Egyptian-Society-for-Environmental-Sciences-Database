@@ -20,7 +20,7 @@ def take_user_input():  # A function to store teh user input
 def import_excel_file(): # importing the data into th db
     try:
         base_folder = (
-            r"F:\Programming\projects\Egyptian Society for Environmental Sciences"  # A base folder to search for the excel file
+            r"C:\Work\Programming\Egyptian-Society-for-Environmental-Sciences-Database"  # A base folder to search for the excel file
         )
         excel_file_name = input(
             "Enter the Excel file name: "
@@ -42,11 +42,10 @@ def import_excel_file(): # importing the data into th db
         data = check_duplicates(data)  # Calling check dups to ensure no duplicate members get signed in
         data = phone_num_registration(data)
         data = dates_registration(data)  # Calling dates regist. to register formatted reg and exp dates
-        datat = set_status(data)
+        data = set_status(data)
         new_excel_name = "editied " + excel_file
         data.to_excel(new_excel_name, index=False) 
         print("-" * 30)
-        con.commit()  # Commiting changes to the database
     except Exception as e:
         print(f"An unexpected error has occurred: {e}")
         print("-" * 30)
