@@ -18,6 +18,12 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 class Base(DeclarativeBase):
     pass
 
+DateForamt = "%d %m %Y"
+
+def get_current_date() -> str:
+    return datetime.now().strftime(DateForamt)
+
+
 # 2. DEFINE THE ORM MODEL
 # Use names that match your Excel columns.
 class Member(Base):
@@ -26,7 +32,7 @@ class Member(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     member_name: Mapped[str] = mapped_column(String, index=True)
     phone_number: Mapped[str]
-    reg_date: Mapped[str]
+    reg_date: Mapped[str] 
     exp_date: Mapped[str]
     status: Mapped[str] = mapped_column(default="Not Provided")
     member_email: Mapped[str]
@@ -37,7 +43,9 @@ class Member(Base):
 @event.listens_for(Member, 'before_insert')
 def calculate_expiration_set_status(mapper, connection, target):
     exp_date_obj = None
-    DateForamt = "%d %m %Y"
+    if not target.reg_date:
+        target.reg_date = get_current_date()
+
     if target.exp_date:
         try:
             exp_date_obj = datetime.strptime(str(target.exp_date), DateForamt)
@@ -47,7 +55,7 @@ def calculate_expiration_set_status(mapper, connection, target):
     if not target.exp_date and target.reg_date:
         try:
             reg_date_obj = datetime.strptime(str(target.reg_date), DateForamt)
-            target.reg_date = reg_date_obj.strftime(DateForamt )
+            target.reg_date = reg_date_obj.strftime(date)
             exp_date_obj = reg_date_obj + timedelta(days=365)
             target.exp_date = exp_date_obj.strftime(DateForamt)
         except(ValueError,TypeError):

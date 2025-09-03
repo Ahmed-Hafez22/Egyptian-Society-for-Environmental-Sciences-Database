@@ -61,15 +61,23 @@ async def read_excel(file: UploadFile = File(...), db_session: sessionmaker = De
 @app.post("/Create-Member", response_model= schemas.Member)
 def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depends(get_db)):
     try:
-        new_member = DB.Member(member_name = member.member_name,
-                            member_email = member.member_email,
-                            reg_date = member.reg_date,
-                            phone_number = member.phone_number)
+        new_member = DB.Member(**member.dict())
         db_session.add(new_member)
         db_session.commit()
-        db_session.refresh(new_member)
-        return new_member
+        db_session.refresh(new_member) 
+        return type(new_member)
     except Exception as e:
         print(f"An error occurred: {e}")
         # Return a more informative error to the client
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+    
+@app.delete("/Delete-Member/{member_id}")
+def Delete_member(member_id: int, db_session: sessionmaker = Depends(get_db)):
+    try:
+        to_be_delted_member = db_session.query(DB.Member).filter(DB.Member.id == member_id).one()
+        db_session.delete(to_be_delted_member)
+        db_session.commit()
+        return (f"Member with ID: {member_id} got deleted")
+    except Exception as e:
+        print(f"An error has occurred: {e}")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")

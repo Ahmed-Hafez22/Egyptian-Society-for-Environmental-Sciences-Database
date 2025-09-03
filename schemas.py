@@ -1,15 +1,11 @@
 from libraries import *
-
-def get_current_date():
-    return date.today().strftime("%d %m %Y")
+from DB import get_current_date
 
 
 class CreateMember(BaseModel):
     member_name: str
     phone_number: Optional[str] = "Not Provided"
-    reg_date: str = Field(default_factory=get_current_date())
-    exp_date: Optional[str] = "Not Provided"
-    status: Optional[str] = "Not Provided"
+    reg_date: Optional[str] = None
     member_email: Optional[str] = "Not Provided"
 
 class Member(BaseModel):
@@ -24,4 +20,3 @@ class Member(BaseModel):
     
 class Config:
     orm_mode = True
-    
