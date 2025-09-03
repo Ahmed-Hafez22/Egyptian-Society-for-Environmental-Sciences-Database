@@ -75,6 +75,7 @@ def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depen
             member_email = member_data.get('member_email', 'Not Provided')
         )
         new_member.phone_number = phone_num_registration(new_member.phone_number)
+        new_member.member_email = check_emails(new_member.member_email)
         flag = check_duplicates(new_member)
         if flag == True:
             db_session.add(new_member)
@@ -95,6 +96,27 @@ def Delete_member(member_id: int, db_session: sessionmaker = Depends(get_db)):
         db_session.delete(to_be_delted_member)
         db_session.commit()
         return (f"Member with ID: {member_id} got deleted")
+    except Exception as e:
+        print(f"An error has occurred: {e}")
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+@app.get("/Show-Members", response_model=List[dict])
+def show_members(db_session: sessionmaker = Depends(get_db)):
+    try:
+        unprocessedMembers = db_session.query(DB.Member).all()
+        processedMembers = []
+        for member in unprocessedMembers:
+            member_dict = {
+                "id": member.id,
+                "member_name": member.member_name,
+                "phone_number": member.phone_number,
+                "reg_date": member.reg_date,
+                "exp_date": member.exp_date,
+                "status": member.status,
+                "member_email": member.member_email
+            }
+            processedMembers.append(member_dict)
+        return processedMembers
     except Exception as e:
         print(f"An error has occurred: {e}")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
