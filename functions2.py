@@ -6,7 +6,7 @@ db_session = SessionLocal()
 def import_excel_file(): # importing the data into th db
     try:
         base_folder = (
-            r"C:\Work\Programming\Egyptian-Society-for-Environmental-Sciences-Database"  # A base folder to search for the excel file
+            r"F:\Programming\projects\Egyptian-Society-for-Environmental-Sciences-Database"  # A base folder to search for the excel file
         )
         excel_file_name = input(
             "Enter the Excel file name: "
@@ -92,51 +92,36 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
                         indices_to_drop.extend(data[condition].index.tolist())
             data = data.drop(indices_to_drop)  # Dropping duplicated rows
             return data
-        else:
+        elif isinstance(data, object):
+            member_email = getattr(data, 'member_email', None)
+            member_name = getattr(data, 'member_name', None)
             found_counter = 0  # A counter to check on single member input
-            if data[2] != "Not Provided":
+
+            if member_email != "Not Provided":
                 for reg_email in all_members:
-                    if data[2] == reg_email.member_email:
+                    if member_email == reg_email.member_email:
                         found_counter += 1  # if the new member matches one or more email the counter will be incremented by 1
                     else:
                         continue
                 if found_counter > 0:
-                    print("-" * 30)
-                    print(
-                        "Member is already registered"
-                    )  # Telling the user the member is already in the db
-                    print("-" * 30)
                     return False  # Returning false to refuse the insertion of the new member
                 else:
-                    print("-" * 30)
-                    print(
-                        "Member got added successfully"
-                    )  # Telling the user the member got added Successfully
-                    print("-" * 30)
                     return True  # Returning True to allow new member insertion in the db
+                
             else:
                 for reg_name in all_members:
-                    if data[0] == reg_name.member_name:
-                        found_counter += 1
+                    if member_name == reg_name.member_name:
+                        found_counter += 1 
                     else:
                         continue
                 if found_counter > 0:
-                    print("-" * 30)
-                    print(
-                        "Member is already registered"
-                    )  # Telling the user the member is already in the db
-                    print("-" * 30)
                     return False  # Returning false to refuse the insertion of the new member
                 else:
-                    print("-" * 30)
-                    print(
-                        "Member got added successfully"
-                    )  # Telling the user the member got added Successfully
-                    print("-" * 30)
                     return True  # Returning True to allow new member insertion in the db 
     except Exception as e:
         print(f"An unexcepted error has happened: {e}")
         print("-" * 30)
+        return False
 
 #------------------------------------------------------------
 def phone_num_registration(data):

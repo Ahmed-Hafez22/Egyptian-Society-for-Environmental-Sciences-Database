@@ -3,6 +3,7 @@ from sqlalchemy import event, create_engine, String, inspect
 from sqlalchemy.orm import  Mapped, mapped_column, DeclarativeBase, sessionmaker
 import DB
 import schemas
+from functions2 import *
 
 app = FastAPI()
 
@@ -38,11 +39,11 @@ async def read_excel(file: UploadFile = File(...), db_session: sessionmaker = De
         for item in data:
             new_member = DB.Member(
                 member_name=item.get('member_name'),
-                phone_number=item.get('phone_number'),
-                reg_date=str(item.get('reg_date')), # Ensure date is converted to string
-                exp_date=str(item.get('exp_date')), # Ensure date is converted to string
-                status=item.get('status'),
-                member_email=item.get('member_email')
+                phone_number=item.get('phone_number', 'Not Provided'),
+                reg_date=str(item.get('reg_date')) if item.get('reg_date') else None, # Ensure date is converted to string
+                exp_date=str(item.get('exp_date')) if item.get('exp_date') else None, # Ensure date is converted to string
+                status=item.get('status', 'Not Provided'),
+                member_email=item.get('member_email', 'Not Provided')
             )
             db_session.add(new_member)
         
@@ -58,14 +59,30 @@ async def read_excel(file: UploadFile = File(...), db_session: sessionmaker = De
         raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
 
 
-@app.post("/Create-Member", response_model= schemas.Member)
+@app.post("/Create-Member")
 def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depends(get_db)):
     try:
-        new_member = DB.Member(**member.dict())
-        db_session.add(new_member)
-        db_session.commit()
-        db_session.refresh(new_member) 
-        return type(new_member)
+        member_data = member.dict()
+
+        reg_date = member_data.get('reg_date')
+        if reg_date in ["string", "", "Not Provided"]:
+            reg_date = None  # This will trigger the ORM default
+
+        new_member = DB.Member(
+            member_name = member_data['member_name'],
+            phone_number = member_data.get('phone_number', 'Not Provided'),
+            reg_date = member_data.get('reg_date'),
+            member_email = member_data.get('member_email', 'Not Provided')
+        )
+        new_member.phone_number = phone_num_registration(new_member.phone_number)
+        flag = check_duplicates(new_member)
+        if flag == True:
+            db_session.add(new_member)
+            db_session.commit()
+            db_session.refresh(new_member)
+            return (f"{new_member.member_name} Got added successfully")
+        else:
+            return (f"{new_member.member_name} Is already in the database")
     except Exception as e:
         print(f"An error occurred: {e}")
         # Return a more informative error to the client

@@ -7,6 +7,13 @@ class CreateMember(BaseModel):
     phone_number: Optional[str] = "Not Provided"
     reg_date: Optional[str] = None
     member_email: Optional[str] = "Not Provided"
+    
+    @validator('reg_date', pre=True, always=True)
+    def validate_reg_date(cls, v):
+        print(f"Validating reg_date: '{v}'")  # DEBUG
+        if v in ["string", "", "Not Provided"]:
+            return None
+        return v
 
 class Member(BaseModel):
     model_config = ConfigDict(from_attributes=True)

@@ -21,7 +21,11 @@ class Base(DeclarativeBase):
 DateForamt = "%d %m %Y"
 
 def get_current_date() -> str:
-    return datetime.now().strftime(DateForamt)
+    date_str = datetime.now().strftime(DateForamt)
+    return date_str
+
+def get_default_exp_date() -> str:
+    return (timedelta(days = 365) + datetime.now()).strftime(DateForamt)
 
 
 # 2. DEFINE THE ORM MODEL
@@ -31,11 +35,11 @@ class Member(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     member_name: Mapped[str] = mapped_column(String, index=True)
-    phone_number: Mapped[str]
-    reg_date: Mapped[str] 
-    exp_date: Mapped[str]
-    status: Mapped[str] = mapped_column(default="Not Provided")
-    member_email: Mapped[str]
+    phone_number: Mapped[str] = mapped_column(String, default="Not Provided")
+    reg_date: Mapped[str] = mapped_column(String, default=get_current_date)
+    exp_date: Mapped[str] = mapped_column(String, default=get_default_exp_date)
+    status: Mapped[str] = mapped_column(String, default="Not Provided")
+    member_email: Mapped[str] = mapped_column(String, default="Not Provided")
     def to_tuple(self):
         column_names = [c.key for c in inspect(self).mapper.column_attrs]
         return tuple(getattr(self, name) for name in column_names)
@@ -46,20 +50,21 @@ def calculate_expiration_set_status(mapper, connection, target):
     if not target.reg_date:
         target.reg_date = get_current_date()
 
-    if target.exp_date:
+    if target.exp_date and target.exp_date != "Not Provided":
         try:
             exp_date_obj = datetime.strptime(str(target.exp_date), DateForamt)
         except(ValueError,TypeError):
             exp_date_obj = None
             
-    if not target.exp_date and target.reg_date:
+    if not (target.exp_date or target.exp_date == "Not Provided") and target.reg_date and target.reg_date != "Not Provided":
         try:
             reg_date_obj = datetime.strptime(str(target.reg_date), DateForamt)
-            target.reg_date = reg_date_obj.strftime(date)
+            target.reg_date = reg_date_obj.strftime(DateForamt)
             exp_date_obj = reg_date_obj + timedelta(days=365)
             target.exp_date = exp_date_obj.strftime(DateForamt)
+
         except(ValueError,TypeError):
-            pass
+            target.exp_date = get_default_exp_date()
     
     if exp_date_obj:
         today = datetime.today().date()
@@ -68,10 +73,8 @@ def calculate_expiration_set_status(mapper, connection, target):
             target.status = "Active"
         else:
             target.status = "Inactive"
-    elif not target.status:
+    elif not target.status or target.status == "Not Provided":
         target.status = "Not Provided"        
-
-
 
 # Create the database table (if it doesn't exist)
 Base.metadata.create_all(bind=engine)
