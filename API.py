@@ -3,7 +3,7 @@ from sqlalchemy import event, create_engine, String, inspect
 from sqlalchemy.orm import  Mapped, mapped_column, DeclarativeBase, sessionmaker
 import DB
 import schemas
-from functions2 import *
+from functions2 import phone_num_registration, check_emails, check_duplicates
 
 app = FastAPI()
 
@@ -117,6 +117,51 @@ def show_members(db_session: sessionmaker = Depends(get_db)):
             }
             processedMembers.append(member_dict)
         return processedMembers
+    except Exception as e:
+        print(f"An error has occurred: {e}")
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+@app.get("/Get-Member/{Member_id}")
+def get_member(member_id, db_session: sessionmaker = Depends(get_db)):
+    try:
+        wanted_member = db_session.query(DB.Member).filter(DB.Member.id == member_id).one()
+        if not wanted_member:
+            raise HTTPException(status_code=500, detail="Member isn't the database")
+        
+        return wanted_member
+
+    except Exception as e:
+        print(f"An error has occurred: {e}")
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+    
+@app.put("/Update-Member/{Member_id}")
+def update_member(member_id, member: schemas.UpdateMember, db_session: sessionmaker = Depends(get_db)):
+    try:
+        member_data = member.dict()
+        wanted_member = db_session.query(DB.Member).filter(DB.Member.id == member_id).one()
+        if member_data['member_name'] != "string":
+            wanted_member.member_name = member_data['member_name']
+
+        else:
+            pass
+
+        if member_data['phone_number'] != "string":
+            wanted_member.phone_number = member_data['phone_number']
+        else:
+            pass
+        
+        if member_data['reg_date'] != "string":
+            wanted_member.reg_date = member_data['reg_date']
+        else:
+            pass
+
+        if member_data['member_email'] != "string":
+            wanted_member.member_email = member_data['member_email']
+        else:
+            pass
+        db_session.commit()
+        db_session.refresh(wanted_member)
+        return wanted_member
     except Exception as e:
         print(f"An error has occurred: {e}")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")

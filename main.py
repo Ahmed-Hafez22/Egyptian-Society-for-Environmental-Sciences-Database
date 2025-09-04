@@ -3,7 +3,7 @@ from functions2 import *
 from libraries import *
 from DB import *
 # Main
-check_duplicates(Member(member_name= Member.member_name == "Ahmed", member_email= Member.member_email == "Ahmed@gmail.com"))
+show_all_members()
 # flag = True
 # while flag == True:
 #     try:

@@ -24,6 +24,12 @@ class Member(BaseModel):
     exp_date: str
     status: str
     member_email: str
+
+class UpdateMember(BaseModel):
+    member_name: Optional [str] = None
+    phone_number: Optional [str] = None
+    reg_date: Optional [str] = None
+    member_email: Optional [str] = None
     
 class Config:
     orm_mode = True
