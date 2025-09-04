@@ -180,14 +180,18 @@ def dates_registration(data):
             data["reg_date"] = formatted_reg_dates_lst
             data["exp_date"] = formatted_exp_dates_lst  # Adding a new column with the exp. dates     
             return data   
+        
+
         elif isinstance(data, object):
-            reg_date = getattr(data, 'reg_date', None)
+            reg_date_str = getattr(data, 'reg_date', None)
             dates_lst = []  # An empty lst for reg dates
-            if reg_date == "Not Provided":
-                reg_date = datetime.today().strftime("%d %m %Y")
+            if reg_date_str == "Not Provided" or reg_date_str is None or reg_date_str == "":
+                reg_date = datetime.today()
+                formatted_reg_date = reg_date.strftime("%d %m %Y")
                 exp_date = reg_date + timedelta(days=365)
-                dates_lst.append(reg_date)
-                dates_lst.append(exp_date)
+                formatted_exp_date = exp_date.strftime("%d %m %Y")
+                dates_lst.append(formatted_reg_date)
+                dates_lst.append(formatted_exp_date)
                 return dates_lst
             else:
                 try:
@@ -225,6 +229,13 @@ def set_status(data):  # Setting the status for each user depending on the date
                     status_lst.append(status)
             data['status'] = status_lst
             return data
+        elif isinstance(data, object):
+            exp_date = getattr(data, 'exp_date', None)
+            if exp_date > current_date:
+                status = "Active"
+            else:
+                status = "Inactive"
+            return status    
     except Exception as e:
         print(f"An unexpected error has occured: {e}")
         return None

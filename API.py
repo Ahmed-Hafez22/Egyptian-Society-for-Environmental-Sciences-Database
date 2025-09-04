@@ -76,8 +76,11 @@ def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depen
         )
         new_member.phone_number = phone_num_registration(new_member.phone_number)
         new_member.member_email = check_emails(new_member.member_email)
-        new_member.reg_date = dates_registration(new_member.reg_date)[0]
-        new_member.exp_date = dates_registration(new_member.reg_date)[1]        
+        formatted_dates = dates_registration(new_member)
+        new_member.reg_date = formatted_dates[0]
+        new_member.exp_date = formatted_dates[1]
+        new_member.status = set_status(new_member)
+      
         flag = check_duplicates(new_member)
         if flag == True:
             db_session.add(new_member)
