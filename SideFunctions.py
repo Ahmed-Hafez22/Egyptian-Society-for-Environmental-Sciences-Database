@@ -180,14 +180,18 @@ def dates_registration(data):
             data["reg_date"] = formatted_reg_dates_lst
             data["exp_date"] = formatted_exp_dates_lst  # Adding a new column with the exp. dates     
             return data   
-        else:
+        elif isinstance(data, object):
+            reg_date = getattr(data, 'reg_date', None)
             dates_lst = []  # An empty lst for reg dates
-            if data == "":
-                dates_lst.append("Not Provided")
-                dates_lst.append("Not Provided")
+            if reg_date == "Not Provided":
+                reg_date = datetime.today().strftime("%d %m %Y")
+                exp_date = reg_date + timedelta(days=365)
+                dates_lst.append(reg_date)
+                dates_lst.append(exp_date)
+                return dates_lst
             else:
                 try:
-                    cleaned_date = sub(r'\D', " ", data)
+                    cleaned_date = sub(r'\D', " ", reg_date)
                     day, month, year = [int(part) for part in cleaned_date.split()]
                     formatted_reg_date = datetime(year, month, day).strftime("%d %m %Y")  # formatting the reg date into a better form
                     formatted_exp_date = datetime(year + 1, month, day).strftime("%d %m %Y")  # formatting the exp date into a better formdates_lst.append(formatted_reg_date)

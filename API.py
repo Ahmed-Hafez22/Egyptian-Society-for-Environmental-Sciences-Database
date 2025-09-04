@@ -3,7 +3,7 @@ from sqlalchemy import event, create_engine, String, inspect
 from sqlalchemy.orm import  Mapped, mapped_column, DeclarativeBase, sessionmaker
 import DB
 import schemas
-from functions2 import phone_num_registration, check_emails, check_duplicates
+from SideFunctions import *
 
 app = FastAPI()
 
@@ -76,6 +76,8 @@ def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depen
         )
         new_member.phone_number = phone_num_registration(new_member.phone_number)
         new_member.member_email = check_emails(new_member.member_email)
+        new_member.reg_date = dates_registration(new_member.reg_date)[0]
+        new_member.exp_date = dates_registration(new_member.reg_date)[1]        
         flag = check_duplicates(new_member)
         if flag == True:
             db_session.add(new_member)
@@ -122,7 +124,7 @@ def show_members(db_session: sessionmaker = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 @app.get("/Get-Member/{Member_id}")
-def get_member(member_id, db_session: sessionmaker = Depends(get_db)):
+def get_member(member_id: int, db_session: sessionmaker = Depends(get_db)):
     try:
         wanted_member = db_session.query(DB.Member).filter(DB.Member.id == member_id).one()
         if not wanted_member:
@@ -134,8 +136,29 @@ def get_member(member_id, db_session: sessionmaker = Depends(get_db)):
         print(f"An error has occurred: {e}")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
     
+@app.get("/Search-for-Member/{Member_name}")
+def search_for_member(member_name: str, db_session: sessionmaker = Depends(get_db)):
+    try:
+        potential_members = db_session.query(DB.Member).filter(DB.Member.member_name.like(f"{member_name}%")).all()
+        pot_processedMem = []
+        for member in potential_members:
+            member_dict = {
+                "id": member.id,
+                "member_name": member.member_name,
+                "phone_number": member.phone_number,
+                "reg_date": member.reg_date,
+                "exp_date": member.exp_date,
+                "status": member.status,
+                "member_email": member.member_email
+            }
+            pot_processedMem.append(member_dict)
+        return pot_processedMem
+    except Exception as e:
+        print(f"An error has occurred: {e}")
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+    
 @app.put("/Update-Member/{Member_id}")
-def update_member(member_id, member: schemas.UpdateMember, db_session: sessionmaker = Depends(get_db)):
+def update_member(member_id: int, member: schemas.UpdateMember, db_session: sessionmaker = Depends(get_db)):
     try:
         member_data = member.dict()
         wanted_member = db_session.query(DB.Member).filter(DB.Member.id == member_id).one()

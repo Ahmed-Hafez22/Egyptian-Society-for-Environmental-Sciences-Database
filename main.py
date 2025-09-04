@@ -1,5 +1,5 @@
 # other python files
-from functions2 import *
+from SideFunctions import *
 from libraries import *
 from DB import *
 # Main
