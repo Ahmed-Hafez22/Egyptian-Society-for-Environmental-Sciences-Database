@@ -15,3 +15,4 @@ import io
 from pydantic import *
 from tkinter import *
 from PIL import Image, ImageTk
+from time import sleep

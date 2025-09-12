@@ -5,13 +5,24 @@ WIDTH = 1000
 HEIGHT = 500
 yVelocity = 30
 
+
 def show_operation_menu():
-        Operation_menu = Canvas(window, width=1500, height=820, background="#ffda7c")
+        screen_width = window.winfo_screenwidth()-50
+        screen_height = window.winfo_screenheight()-100
+        Operation_menu = Canvas(window, width=screen_width, height=screen_height, background="#ffda7c")
         Operation_menu.place(relx=0.5, rely=0.5, anchor=CENTER)
-        Operation_menu_esesDB = Operation_menu.create_text(750, 30, text="ESES Database", font=("courier new", 30))
+        Operation_menu_esesDB = Operation_menu.create_text((screen_width/2), 30, text="ESES Database", font=("courier new", 30))
         Operation_menu_operationList = Operation_menu.create_text(150, 100, text="Operations List:- ", font=("calibri", 30))
-        import_excel_file_button = Button(Operation_menu, width=50 ,height=50, background="ffda7c", text="1-Import Excel File")
-        import_excel_file_button.pack()
+        import_excel_file_button = Button(Operation_menu, background="#ffda7c", text="1-Import Excel File", font=("oswald", 20), borderwidth=0, activebackground="#fac84a")
+        def change_button_color_hover(event= None):
+            import_excel_file_button.config(background="#fce5aa")
+        def change_button_color_leave(event= None):
+            import_excel_file_button.config(background="#ffda7c")
+        import_excel_file_button.bind("<Enter>", change_button_color_hover)
+        import_excel_file_button.bind("<Leave>", change_button_color_leave)
+        buttons_window = Operation_menu.create_window(155, 160, window=import_excel_file_button)
+        
+
 is_fading = True
 
 def pulse_text(fade_direction="out"):
