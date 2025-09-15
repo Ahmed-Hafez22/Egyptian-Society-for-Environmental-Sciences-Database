@@ -30,7 +30,7 @@ async def read_excel(file: UploadFile = File(...), db_session: sessionmaker = De
         content = await file.read()
         
         # Use a BytesIO object to allow pandas to read the in-memory file content
-        dataframe = pd.read_excel(io.BytesIO(content))
+        dataframe = pd.read_excel(io.BytesIO(content), sheet_name="Sheet1")
 
         # Convert dataframe to a list of dictionaries
         data = dataframe.to_dict(orient='records')

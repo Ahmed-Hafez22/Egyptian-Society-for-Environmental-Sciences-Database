@@ -3,7 +3,7 @@ from SideFunctions import *
 from libraries import *
 from DB import *
 # Main
-show_all_members()
+import_excel_file("F:\\Programming\\projects\\Egyptian-Society-for-Environmental-Sciences-Database\\names.xlsx")
 # flag = True
 # while flag == True:
 #     try:

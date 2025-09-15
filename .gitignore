@@ -3,3 +3,5 @@
 *.xls
 *test.py
 *.png
+__pycache__/
+*test_upload.py

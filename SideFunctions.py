@@ -3,25 +3,12 @@ from DB import *
 
 db_session = SessionLocal()
 
-def import_excel_file(): # importing the data into th db
+def import_excel_file(filePath): # importing the data into th db
     try:
-        base_folder = (
-            r"F:\Programming\projects\Egyptian-Society-for-Environmental-Sciences-Database"  # A base folder to search for the excel file
-        )
-        excel_file_name = input(
-            "Enter the Excel file name: "
-        )  # taking the name of the excel file
-        excel_file = (
-            excel_file_name + ".xlsx"
-        )  # Adding the extension to the name of the excel file
-        excel_file_final = path.join(
-            base_folder, excel_file
-        )  # Joinning out the base folder with the excel file name to make a full path
-        sheet_name_locally = input(
-            "Enter the sheet name: "
-        )  # Taking the name of the Sheet where the data is stored
+        excel_file_name = os.path.splitext(os.path.basename(filePath))[0]
+        # Read Excel file
         data = pd.read_excel(
-            excel_file_final, dtype={"phone_number": str}, sheet_name=sheet_name_locally
+            filePath, dtype={"phone_number": str}, sheet_name=0, engine="openpyxl"
         )
         # ----------------------------------------------
         data = check_emails(data)
@@ -29,9 +16,21 @@ def import_excel_file(): # importing the data into th db
         data = phone_num_registration(data)
         data = dates_registration(data)  # Calling dates regist. to register formatted reg and exp dates
         data = set_status(data)
-        new_excel_name = "editied " + excel_file
-        data.to_excel(new_excel_name, index=False) 
-        print("-" * 30)
+        new_excel_name = f"edited_{excel_file_name}.xlsx"
+        data.to_excel(new_excel_name, index=False)
+
+        API_URL = "http://127.0.0.1:8000/readExcel/"
+
+
+        with builtins.open(new_excel_name, "rb") as f:
+            files = {"file": f}
+            r = requests.post(API_URL, files=files)
+
+        if r.status_code == 200:
+            return True
+        else: 
+            return False
+
     except Exception as e:
         print(f"An unexpected error has occurred: {e}")
         print("-" * 30)
@@ -162,8 +161,12 @@ def dates_registration(data):
             formatted_exp_dates_lst = []  # An empty lst for exp dates
             for date_str in data.get("reg_date", []):
                 if not isinstance(date_str, str):
-                    formatted_reg_dates_lst.append("Not Provided")
-                    formatted_exp_dates_lst.append("Not Provided")
+                    reg_date = datetime.today()
+                    formatted_reg_date = reg_date.strftime("%d %m %Y")
+                    exp_date = reg_date + timedelta(days=365)
+                    formatted_exp_date = exp_date.strftime("%d %m %Y")
+                    formatted_reg_dates_lst.append(formatted_reg_date)
+                    formatted_exp_dates_lst.append(formatted_exp_date)
                     continue
                 else:
                     try:
@@ -174,8 +177,12 @@ def dates_registration(data):
                         formatted_reg_dates_lst.append(formatted_reg_date)  # Adding the reg. date into the lst
                         formatted_exp_dates_lst.append(formatted_exp_date) # Adding the exp. date into the lst
                     except (ValueError, TypeError):
-                        formatted_reg_dates_lst.append("Not Provided")
-                        formatted_exp_dates_lst.append("Not Provided")
+                        reg_date = datetime.today()
+                        formatted_reg_date = reg_date.strftime("%d %m %Y")
+                        exp_date = reg_date + timedelta(days=365)
+                        formatted_exp_date = exp_date.strftime("%d %m %Y")
+                        formatted_reg_dates_lst.append(formatted_reg_date)
+                        formatted_exp_dates_lst.append(formatted_exp_date)
                 
             data["reg_date"] = formatted_reg_dates_lst
             data["exp_date"] = formatted_exp_dates_lst  # Adding a new column with the exp. dates     
@@ -203,9 +210,14 @@ def dates_registration(data):
                     dates_lst.append(formatted_exp_date)  # adding the exp date into the lst
                     return dates_lst
                 except (ValueError, TypeError):
-                    dates_lst.append("Not Provided")  
-                    dates_lst.append("Not Provided")
+                    reg_date = datetime.today()
+                    formatted_reg_date = reg_date.strftime("%d %m %Y")
+                    exp_date = reg_date + timedelta(days=365)
+                    formatted_exp_date = exp_date.strftime("%d %m %Y")
+                    dates_lst.append(formatted_reg_date)
+                    dates_lst.append(formatted_exp_date)
                     return dates_lst 
+                
     except Exception as e:
         print(f"An unexpected error has occured: {e}")
         print("-" * 30)
@@ -217,10 +229,6 @@ def set_status(data):  # Setting the status for each user depending on the date
         status_lst = []
         if isinstance(data, pd.DataFrame):
             for date in data['exp_date']:
-                if not isinstance(date, str) or date == "Not Provided":
-                    status = "Not Provided"
-                    status_lst.append(status)
-                    continue
                 if date > current_date:
                     status = "Active"
                     status_lst.append(status)

@@ -1,18 +1,18 @@
 from libraries import *
 import API
+import SideFunctions
+
 
 WIDTH = 1000
 HEIGHT = 500
 yVelocity = 30
 
-
 def show_operation_menu():
-        screen_width = window.winfo_screenwidth()-50
-        screen_height = window.winfo_screenheight()-100
+        global Operation_menu 
         Operation_menu = Canvas(window, width=screen_width, height=screen_height, background="#ffda7c")
         Operation_menu.place(relx=0.5, rely=0.5, anchor=CENTER)
-        Operation_menu_esesDB = Operation_menu.create_text((screen_width/2), 30, text="ESES Database", font=("courier new", 30))
-        Operation_menu_operationList = Operation_menu.create_text(150, 100, text="Operations List:- ", font=("calibri", 30))
+        Operation_menu.create_text((screen_width/2), 30, text="ESES Database", font=("courier new", 30))
+        Operation_menu.create_text(150, 100, text="Operations List:- ", font=("calibri", 30))
         import_excel_file_button = Button(Operation_menu, background="#ffda7c", text="1-Import Excel File", font=("oswald", 20), borderwidth=0, activebackground="#fac84a")
         def change_button_color_hover(event= None):
             import_excel_file_button.config(background="#fce5aa")
@@ -20,7 +20,9 @@ def show_operation_menu():
             import_excel_file_button.config(background="#ffda7c")
         import_excel_file_button.bind("<Enter>", change_button_color_hover)
         import_excel_file_button.bind("<Leave>", change_button_color_leave)
-        buttons_window = Operation_menu.create_window(155, 160, window=import_excel_file_button)
+        Operation_menu.create_window(155, 160, window=import_excel_file_button)
+        import_excel_file_button.bind("<Button-1>", import_excel_file)
+
         
 
 is_fading = True
@@ -93,7 +95,51 @@ def start_animation(event=None):
     move_main_screen()
     fade_text_permanently()
         
-        
+def import_excel_file(event=None):
+    Operation_menu.place_forget()
+    import_excel_file_canvas = Canvas(window, width=screen_width, height=screen_height, background="#ffda7c")
+    import_excel_file_canvas.place(relx=0.5, rely=0.5, anchor=CENTER)
+    import_excel_file_canvas.create_text((screen_width/2), 30, text="ESES Database", font=("courier new", 30))
+    import_excel_file_canvas.create_text(150, 100, text="Import excel file:", font=("calibri", 30))
+
+    def open_excel_file(event=None):
+        filePath = filedialog.askopenfilename(
+            title="Select Excel File",
+            filetypes=[("Excel files", "*.xlsx *.xls"), ("All files", "*.*")]
+        )
+        if filePath:
+            status = SideFunctions.import_excel_file(filePath)
+            excel_file_name = os.path.splitext(os.path.basename(filePath))[0]
+            if status == True:
+                import_excel_file_canvas.create_text(300, 250, text= excel_file_name + " got added successfully", font=("Arial", 18))
+            else:
+                import_excel_file_canvas.create_text(300, 250, text= excel_file_name + " didn't get added", font=("Arial", 18))
+
+
+    def return_to_main_menu(event=None):
+        import_excel_file_canvas.place_forget()
+        Operation_menu.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+    chooseFileButton = Button(window, background="#ffda7c", font=("oswald", 25), activebackground="#fac84a", text="Choose a file", command=open_excel_file)
+    returnToMainMenuButton = Button(window, background="#ffda7c", font=("oswald", 25), activebackground="#fac84a", text="Return", command=return_to_main_menu)
+    import_excel_file_canvas.create_window(200, 180, window=chooseFileButton)
+    import_excel_file_canvas.create_window(160, 320, window=returnToMainMenuButton)
+    def change_excelButton_color_hover(event= None):
+        chooseFileButton.config(background="#fce5aa")
+    def change_excelButton_color_leave(event= None):
+        chooseFileButton.config(background="#ffda7c")
+    chooseFileButton.bind("<Enter>", change_excelButton_color_hover)
+    chooseFileButton.bind("<Leave>", change_excelButton_color_leave)
+
+    def change_returnButton_color_hover(event= None):
+        returnToMainMenuButton.config(background="#fce5aa")
+    def change_returnButton_color_leave(event= None):
+        returnToMainMenuButton.config(background="#ffda7c")
+    returnToMainMenuButton.bind("<Enter>", change_returnButton_color_hover)
+    returnToMainMenuButton.bind("<Leave>", change_returnButton_color_leave)
+    
+
+
 
 window = Tk()
 window.state("zoomed")
@@ -101,6 +147,9 @@ window.title("ESES Database")
 icon = PhotoImage(file="ESES.png")
 window.iconphoto(True, icon)
 window.config(background="#ffda7c")
+
+screen_width = window.winfo_screenwidth()-50
+screen_height = window.winfo_screenheight()-100
 
 
 main_screen_canvas = Canvas(window, width=WIDTH, height=HEIGHT, background="#ffda7c", borderwidth=0, highlightthickness=0)
