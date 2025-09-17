@@ -16,22 +16,21 @@ window.config(background="#ffda7c")
 screen_width = window.winfo_screenwidth()-50
 screen_height = window.winfo_screenheight()-100
 
-
-main_screen_frame = Frame(window, width=WIDTH, height=HEIGHT, background="#ffda7c")
-main_screen_frame.place(relx=0.5, rely=0.5, anchor=CENTER)
-
 original_logo = Image.open("ESES.png")
 new_logo_height = 250
 new_logo_width = 250
 resized_logo = original_logo.resize((new_logo_width, new_logo_height), Image.Resampling.LANCZOS)
 tk_logo = ImageTk.PhotoImage(resized_logo)
 
-quick_canvas = Canvas(window, width=WIDTH, height=HEIGHT, background="#ffda7c")
-quick_canvas.place(relx=05., rely=0.5, anchor=CENTER)
+main_screen_frame = Frame(window, width=screen_width, height=screen_height, background="#ffda7c")
+
+
+quick_canvas = Canvas(window, width=WIDTH, height=HEIGHT, background="#ffda7c", borderwidth=0, highlightthickness=0)
+quick_canvas.place(relx=0.5, rely=0.5, anchor=CENTER)
 
 main_screen_logo = quick_canvas.create_image(150, 250, image=tk_logo, anchor=CENTER)
 main_screen_text = quick_canvas.create_text(650, 250, text="Welcome to ESES Database", anchor=CENTER, font=("Courier New", 30))
-press_enter = quick_canvas.create_text(500, 480, text="Press (Enter) to start", anchor=CENTER, font=("comic sans", 30), fill="red")
+press_enter = quick_canvas.create_text(500, 480, text="Click to start", anchor=CENTER, font=("comic sans", 30), fill="red")
 
 is_fading = True
 
@@ -99,11 +98,13 @@ def start_animation(event=None):
     global is_fading
     if not is_fading: return # Prevent accidental double-press
     is_fading = False
-    window.unbind("<Return>")
+    window.unbind("<Button-1>")
     move_main_screen()
     fade_text_permanently()
+    main_screen_frame.pack(fill="both", expand=True)  # Ensure frame fills window
 
-window.bind("<Return>", start_animation)
+
+window.bind("<Button-1>", start_animation)
 pulse_text()
 
 def create_hover_functions(button_widget, hover_color, leave_color):
@@ -123,9 +124,7 @@ def clean_container():
 
 def show_operation_menu():
     clean_container()
-    Label(main_screen_frame,text="ESES Database", font=("courier new", 30), bg="#ffda7c").grid(row=0, column=0, columnspan=4)
-    operationsList = Label(main_screen_frame,text="Operations List:-", font=("Calibri", 30))
-    operationsList.grid(row=0, column=0)
+    Label(main_screen_frame, text="ESES Database", font=("courier new", 30), bg="#ffda7c").grid(row=0, column=0, columnspan=4)
         
 
         
