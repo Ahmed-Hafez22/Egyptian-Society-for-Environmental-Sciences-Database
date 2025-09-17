@@ -4,7 +4,7 @@ from libraries import *
 class CreateMember(BaseModel):
     member_name: str
     phone_number: Optional[str] = "Not Provided"
-    reg_date: Optional[str] = "Not Provided"
+    reg_date: Optional[str] = None
     member_email: Optional[str] = "Not Provided"
 
 class Member(BaseModel):

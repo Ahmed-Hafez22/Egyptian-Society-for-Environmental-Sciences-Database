@@ -66,12 +66,12 @@ def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depen
 
         reg_date = member_data.get('reg_date')
         if reg_date in ["string", "", "Not Provided"]:
-            reg_date = None  # This will trigger the ORM default
+            reg_date = datetime.now().strftime("%d %m %Y")  # This will trigger the ORM default
 
         new_member = DB.Member(
             member_name = member_data['member_name'],
             phone_number = member_data.get('phone_number', 'Not Provided'),
-            reg_date = member_data.get('reg_date'),
+            reg_date = reg_date,
             member_email = member_data.get('member_email', 'Not Provided')
         )
         new_member.phone_number = phone_num_registration(new_member.phone_number)
@@ -86,9 +86,9 @@ def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depen
             db_session.add(new_member)
             db_session.commit()
             db_session.refresh(new_member)
-            return (f"{new_member.member_name} Got added successfully")
+            return (f"{new_member.member_name} got added successfully")
         else:
-            return (f"{new_member.member_name} Is already in the database")
+            return (f"{new_member.member_name} is already in the database")
     except Exception as e:
         print(f"An error occurred: {e}")
         # Return a more informative error to the client

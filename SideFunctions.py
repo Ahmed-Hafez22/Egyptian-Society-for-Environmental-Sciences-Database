@@ -202,10 +202,10 @@ def dates_registration(data):
                 return dates_lst
             else:
                 try:
-                    cleaned_date = sub(r'\D', " ", reg_date)
+                    cleaned_date = sub(r'\D', " ", reg_date_str)
                     day, month, year = [int(part) for part in cleaned_date.split()]
                     formatted_reg_date = datetime(year, month, day).strftime("%d %m %Y")  # formatting the reg date into a better form
-                    formatted_exp_date = datetime(year + 1, month, day).strftime("%d %m %Y")  # formatting the exp date into a better formdates_lst.append(formatted_reg_date)
+                    formatted_exp_date = datetime(year + 1, month, day).strftime("%d %m %Y")  # formatting the exp date into a better form
                     dates_lst.append(formatted_reg_date) # adding the reg date into the lst
                     dates_lst.append(formatted_exp_date)  # adding the exp date into the lst
                     return dates_lst
