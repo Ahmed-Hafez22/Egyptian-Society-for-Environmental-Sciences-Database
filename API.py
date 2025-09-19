@@ -67,6 +67,15 @@ def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depen
         reg_date = member_data.get('reg_date')
         if reg_date in ["string", "", "Not Provided"]:
             reg_date = datetime.now().strftime("%d %m %Y")  # This will trigger the ORM default
+        
+        name = ""
+        member_data["member_name"] = member_data["member_name"].lower()
+        name_lst = member_data["member_name"].split()
+        for i in range(len(name_lst)):
+            name += name_lst[i].capitalize()
+            name += " "
+        name = name.strip()
+        member_data["member_name"] = name
 
         new_member = DB.Member(
             member_name = member_data['member_name'],
@@ -82,13 +91,15 @@ def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depen
         new_member.status = set_status(new_member)
       
         flag = check_duplicates(new_member)
-        if flag == True:
+        if flag == f"Add {new_member.member_name}":
             db_session.add(new_member)
             db_session.commit()
             db_session.refresh(new_member)
             return (f"{new_member.member_name} got added successfully")
-        else:
+        elif flag == f"{new_member.member_name} is already in the database":
             return (f"{new_member.member_name} is already in the database")
+        else:
+            return ("Name isn't long enough")
     except Exception as e:
         print(f"An error occurred: {e}")
         # Return a more informative error to the client

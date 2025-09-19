@@ -83,14 +83,32 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
                         indices_to_drop.extend(data[condition].index.tolist()) # Adding the indices to the empty lst
                     else:
                         continue
-                    
-            for no_member in no_mem_email_lst:
+            
+
+            # FIXME: fix names after inserting them from python
+            # TODO: ADD TODO TREE AND Error lens on the laptop
+            modified_names_lst = []
+            for name in range(len(no_mem_email_lst)):
+                name_lst = []
+                name_lst = no_mem_email_lst[name].split()
+                modified_name = ""
+                for i in range(len(name_lst)):
+                    modified_name += name_lst[i].capitalize()
+                    modified_name += " "
+                    print(modified_name)
+                    modified_name = modified_name.split()
+                    modified_names_lst.append(modified_name)
+                
+
+            for mod_name in modified_names_lst:
                 for reg_member in all_members:
-                    if no_member == reg_member.member_name:
-                        condition = data["member_name"] == no_member
+                    if mod_name == reg_member.member_name:
+                        condition = data["member_name"] == mod_name
                         indices_to_drop.extend(data[condition].index.tolist())
             data = data.drop(indices_to_drop)  # Dropping duplicated rows
+            data["member_name"] = modified_names_lst
             return data
+        
         elif isinstance(data, object):
             member_email = getattr(data, 'member_email', None)
             member_name = getattr(data, 'member_name', None)
@@ -108,15 +126,18 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
                     return True  # Returning True to allow new member insertion in the db
                 
             else:
-                for reg_name in all_members:
-                    if member_name == reg_name.member_name:
-                        found_counter += 1 
+                if member_name.count(" ") >= 2:
+                    for reg_name in all_members:
+                        if member_name.lower() == (reg_name.member_name).lower():
+                            found_counter += 1 
+                        else:
+                            continue
+                    if found_counter > 0:
+                        return f"{member_name} is already in the database"  # Returning false to refuse the insertion of the new member
                     else:
-                        continue
-                if found_counter > 0:
-                    return False  # Returning false to refuse the insertion of the new member
+                        return f"Add {member_name}"  # Returning True to allow new member insertion in the db 
                 else:
-                    return True  # Returning True to allow new member insertion in the db 
+                    return "Name isn't long enough"
     except Exception as e:
         print(f"An unexcepted error has happened: {e}")
         print("-" * 30)

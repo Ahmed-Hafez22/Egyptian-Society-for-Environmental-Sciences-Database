@@ -124,55 +124,92 @@ def clean_container():
 
 def show_operation_menu():
     clean_container()
-    Label(main_screen_frame, text="ESES Database", font=("courier new", 30), bg="#ffda7c").grid(row=0, column=0, columnspan=4)
-        
+    Label(main_screen_frame, text="ESES Database", font=("courier new", 30), bg="#ffda7c", anchor="center").grid(row=0, column=0, columnspan=4, sticky="n", pady=(10,0))
+    main_screen_frame.columnconfigure(0, weight=1)
+    Label(main_screen_frame,
+          text="Operation List:-",
+          font=("Arial", 30),
+          bg="#ffda7c").grid(row=1, column=0, padx=(10,0),  sticky="nw")
 
+    buttons_data = [
+        ("1-Import Excel File", import_excel_file, 2),
+        ("2-Register New Member", regist_new_member, 3)
+    ]
+
+    buttons = {}
+
+    for button_text, button_command, button_row in buttons_data:
+        button = Button(main_screen_frame,
+               text=button_text,
+               bg="#ffda7c",
+               relief="flat",
+               font=("oswald", 25),
+               activebackground= "#fac84a",
+               command=button_command
+               )
+        button.grid(row=button_row, column=0, padx=(30,0), pady=(10,0), sticky="nw")
+        hover_enter, hover_leave = create_hover_functions(button, "#fce5aa", "#ffda7c")
+        button.bind("<Enter>", hover_enter)
+        button.bind("<Leave>", hover_leave)
+        buttons[button_text] = button
         
 def import_excel_file(event=None):
-    import_excel_file_canvas = Canvas(window, width=screen_width, height=screen_height, background="#ffda7c")
-    import_excel_file_canvas.place(relx=0.5, rely=0.5, anchor=CENTER)
-    import_excel_file_canvas.create_text((screen_width/2), 30, text="ESES Database", font=("courier new", 30))
-    import_excel_file_canvas.create_text(150, 100, text="Import excel file:", font=("calibri", 30))
-
+    clean_container()
+    main_screen_frame.columnconfigure(0, weight=1)  # Button column - don't expand
+    main_screen_frame.columnconfigure(1, weight=0)  # Message column - don't expand
+    main_screen_frame.columnconfigure(2, weight=0)  # Message column - don't expand
+    main_screen_frame.columnconfigure(3, weight=1)  # Message column - don't expand
+    Label(main_screen_frame, text="ESES Database", font=("courier new", 30), bg="#ffda7c", anchor="center").grid(row=0, column=0, columnspan=4, sticky="n", pady=(10,0))
+    Label(main_screen_frame, text="Import Excel File:", font=("Arial", 30), bg="#ffda7c").grid(row=1, column=0, padx=(10,0), sticky="nw")
     def open_excel_file(event=None):
+
         filePath = filedialog.askopenfilename(
             title="Select Excel File",
             filetypes=[("Excel files", "*.xlsx *.xls"), ("All files", "*.*")]
         )
+
+        status = SideFunctions.import_excel_file(filePath)
+        excel_file_name = os.path.splitext(os.path.basename(filePath))[0]
+        successMsg = Label(main_screen_frame, text=excel_file_name+" got added sucessfully", font=("calibri", 20), bg="#ffda7c")
+        failMsg = Label(main_screen_frame, text=excel_file_name+" didn't get added", font=("calibri", 20), bg="#ffda7c")
         if filePath:
             status = SideFunctions.import_excel_file(filePath)
             excel_file_name = os.path.splitext(os.path.basename(filePath))[0]
             if status == True:
-                msg = import_excel_file_canvas.create_text(300, 250, text= excel_file_name + " got added successfully", font=("Arial", 18), state="normal")
-                import_excel_file_canvas.after(3000, lambda: import_excel_file_canvas.itemconfig(msg, state="hidden"))
+                successMsg.grid(row=2, column=0,columnspan=2, sticky="w", padx=(300,0))
+                main_screen_frame.after(3000, lambda: successMsg.grid_remove())
             else:
-                msg = import_excel_file_canvas.create_text(300, 250, text= excel_file_name + " didn't get added", font=("Arial", 18), state="normal")
-                import_excel_file_canvas.after(3000, lambda: import_excel_file_canvas.itemconfig(msg, state="hidden"))
+                failMsg.grid(row=2, column=0, columnspan=2, sticky="w", padx=(300,0))
+                main_screen_frame.after(3000, lambda: failMsg.grid_remove())
 
 
-    chooseFileButton = Button(window, background="#ffda7c", 
+    chooseFileButton = Button(main_screen_frame, background="#ffda7c", 
                               font=("oswald", 25), activebackground="#fac84a",
                               text="Choose a file",
                               command=open_excel_file,
                               relief="groove")
-    returnToMainMenuButton = Button(window, background="#ffda7c",
-                                    font=("oswald", 25),
-                                    activebackground="#fac84a",
-                                    text="Return",
-                                    relief="groove")
-    
-    import_excel_file_canvas.create_window(200, 180, window=chooseFileButton)
-    import_excel_file_canvas.create_window(160, 320, window=returnToMainMenuButton)
     hover_enter_chooseFileButton, hover_leave_chooseFileButton = create_hover_functions(chooseFileButton, "#fce5aa", "#ffda7c")
     chooseFileButton.bind("<Enter>", hover_enter_chooseFileButton)
     chooseFileButton.bind("<Leave>", hover_leave_chooseFileButton)
+    chooseFileButton.grid(row=2, column=0, padx=(40,0), pady=(10,0), sticky="nw")
+
+    returnToMainMenuButton = Button(main_screen_frame, background="#ffda7c",
+                                    font=("oswald", 25),
+                                    activebackground="#fac84a",
+                                    text="Return",
+                                    command=show_operation_menu,
+                                    relief="groove")
     hover_enter_returnButton, hover_leave_returnButton = create_hover_functions(returnToMainMenuButton, "#fce5aa", "#ffda7c")
     returnToMainMenuButton.bind("<Enter>", hover_enter_returnButton)
     returnToMainMenuButton.bind("<Leave>", hover_leave_returnButton)
+    returnToMainMenuButton.grid(row=3, column=0, padx=(40,0), pady=(10,0), sticky="nw")
 
 
 def regist_new_member(event = None):
-
+    clean_container()
+    main_screen_frame.columnconfigure(0, weight=0)
+    main_screen_frame.columnconfigure(1, weight=0)
+    main_screen_frame.columnconfigure(3, weight=1)
     def submit_new_member_info(event = None):
 
         API_URL = "http://127.0.0.1:8000/Create-Member"
@@ -194,45 +231,58 @@ def regist_new_member(event = None):
             "member_email" : entries["Member Email:"].get(),
             "reg_date" : reg_date
         }
-        
-        if new_member_dict["member_name"] == "":
-            regist_new_member_canvas.create_text(380, 390, text="No info submitted", font=("Arial", 18))
-        else:
-            request = requests.post(API_URL, json=new_member_dict)
+        new_member_dict["member_name"] = new_member_dict["member_name"].lower() 
+        name = ""
+        name_lst = new_member_dict["member_name"].split()
+        for i in range(len(name_lst)):
+            name += name_lst[i].capitalize()
+            name += " "
+        name = name.strip()
+        new_member_dict["member_name"] = name  
+
+        request = requests.post(API_URL, json=new_member_dict, timeout=10)
+
+        def remove_msg(msg):
+             main_screen_frame.after(3000, lambda: msg.grid_remove())
 
         if request.text == f"\"{new_member_dict["member_name"]} got added successfully\"":
-            msg = regist_new_member_canvas.create_text(400, 390, 
-                                                       text=new_member_dict["member_name"] + " got add successfully",
-                                                       font=("Arial", 18),
-                                                       state="normal")
-            regist_new_member_canvas.after(3000, lambda: regist_new_member_canvas.itemconfig(msg, state="hidden"))
-            
+            global successMsg
+            msg = Label(main_screen_frame,
+                        text=new_member_dict["member_name"]+" got added successfully",
+                        bg="#ffda7c",
+                        font=("arial", 15))
+            msg.grid(row=6, column=1, pady=(10,0), sticky="w")
+            remove_msg(msg)
         elif request.text == f"\"{new_member_dict["member_name"]} is already in the database\"":
-            msg = regist_new_member_canvas.create_text(430, 390,
-                                                       text=new_member_dict["member_name"] + " is already in the database",
-                                                       font=("Arial", 18),
-                                                       state="normal")
-            regist_new_member_canvas.after(3000, lambda: regist_new_member_canvas.itemconfig(msg, state="hidden"))
-            
+            msg = Label(main_screen_frame,
+                        text=new_member_dict["member_name"] + " is already in the database",
+                        font=("Arial", 18),
+                        bg="#ffda7c",
+                        state="normal")
+            msg.grid(row=6, column=1, pady=(10,0), sticky="w")
+            remove_msg(msg)
+        elif request.text == f"\"Name isn't long enough\"":
+            msg = Label(main_screen_frame,
+                                text="Name isn't long enough",
+                                font=("arial", 15),
+                                bg="#ffda7c",
+                                state="normal")
+            msg.grid(row=6, column=1, pady=(10,0), sticky="w")
+            remove_msg(msg)
         else:
-            msg = regist_new_member_canvas.create_text(400, 390,
-                                                       text=new_member_dict["member_name"] + " didn't get added",
-                                                       font=("Arial", 18),
-                                                       state="normal")
-            regist_new_member_canvas.after(3000, lambda: regist_new_member_canvas.itemconfig(msg, state="hidden"))
+            msg = Label(main_screen_frame,
+                        text=new_member_dict["member_name"] + " didn't get added",
+                        font=("Arial", 18),
+                        bg="#ffda7c",
+                        state="normal")
+            msg.grid(row=6, column=1, pady=(10,0), sticky="w")
+            remove_msg(msg)
 
-
-    regist_new_member_canvas = Canvas(window, width=screen_width, height=screen_height, background="#ffda7c")
-    regist_new_member_canvas.place(relx=0.5, rely=0.5, anchor=CENTER)
+    ESES_label = Label(main_screen_frame, text="ESES Database", font=("courier new", 30), background="#ffda7c")
+    ESES_label.grid(row=0, column=0, columnspan=4, sticky="ew", pady=(10,0))
     
-    newMember_frame = Frame(regist_new_member_canvas, bg="#ffda7c")
-    regist_new_member_canvas.create_window((0,0), width=screen_width, height=screen_height, window=newMember_frame, anchor="nw")
-    
-    ESES_label = Label(newMember_frame, text="ESES Database", font=("courier new", 30), background="#ffda7c")
-    ESES_label.grid(row=0, column=2, columnspan=4, sticky="ew")
-    
-    reg_label = Label(newMember_frame, text="Register a new member:-", font=("calibri", 25), background="#ffda7c")
-    reg_label.grid(row=1, column=0)
+    reg_label = Label(main_screen_frame, text="Register a new member:-", font=("Arial", 30), background="#ffda7c")
+    reg_label.grid(row=1, column=0, sticky="nw", padx=(10,0))
     
     fields = [
         ("Member Name:",          2),
@@ -245,16 +295,16 @@ def regist_new_member(event = None):
     labels = {}
     
     for label_text, row in fields:
-        label = Label(newMember_frame, text=label_text, background="#ffda7c", font=("Arial", 15))
-        label.grid(row=row, column=0, pady=5)
+        label = Label(main_screen_frame, text=label_text, background="#ffda7c", font=("Arial", 15))
+        label.grid(row=row, column=0, pady=5, sticky="w", padx=(30,0))  
         labels[label_text] = label
+
         
-        entry = Entry(newMember_frame, font=(15), width=20)
-        entry.grid(row=row, column=1, pady=5)
+        entry = Entry(main_screen_frame, font=15, width=20)
+        entry.grid(row=row, column=0, pady=5, sticky="e", padx=(0,60)) 
         entries[label_text] = entry
     
-    
-    submit_button = Button(newMember_frame,
+    submit_button = Button(main_screen_frame,
                            text="Submit",
                            relief="groove",
                            font=("oswald", 15),
@@ -262,23 +312,25 @@ def regist_new_member(event = None):
                            activebackground="#fac84a",
                            background="#ffda7c",
                            )
-    
-    returnToMainMenuButton = Button(newMember_frame,
+    hover_enter_submitButton, hover_leave_submitButton = create_hover_functions(submit_button, "#fce5aa", "#ffda7c")
+    submit_button.bind("<Enter>", hover_enter_submitButton)
+    submit_button.bind("<Leave>", hover_leave_submitButton)
+    submit_button.grid(row=6, column=0, padx=(100,0), pady=(10,0), sticky="w")
+
+
+    returnToMainMenuButton = Button(main_screen_frame,
                                     text="Return",
                                     relief="groove",
                                     font=("oswald", 15),
                                     background="#ffda7c",
-                                    activebackground="#fac84a")
-    
-    hover_enter_submitButton, hover_leave_submitButton = create_hover_functions(submit_button, "#fce5aa", "#ffda7c")
+                                    activebackground="#fac84a",
+                                    command=show_operation_menu)
     hover_enter_returnButton, hover_leave_returnButton = create_hover_functions(returnToMainMenuButton, "#fce5aa", "#ffda7c")
-    
     returnToMainMenuButton.bind("<Enter>", hover_enter_returnButton)
     returnToMainMenuButton.bind("<Leave>", hover_leave_returnButton)
+    returnToMainMenuButton.grid(row=6, column=0, padx=(200,0), pady=(10,0), sticky="w")
     
-    submit_button.bind("<Enter>", hover_enter_submitButton)
-    submit_button.bind("<Leave>", hover_leave_submitButton)
-
+    
     
     
 
