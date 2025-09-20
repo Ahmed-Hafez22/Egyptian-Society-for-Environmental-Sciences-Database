@@ -99,7 +99,7 @@ def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depen
         elif flag == f"{new_member.member_name} is already in the database":
             return (f"{new_member.member_name} is already in the database")
         else:
-            return ("Name isn't long enough")
+            return ("Please enter a valid name")
     except Exception as e:
         print(f"An error occurred: {e}")
         # Return a more informative error to the client

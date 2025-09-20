@@ -16,7 +16,7 @@ def import_excel_file(filePath): # importing the data into th db
         data = phone_num_registration(data)
         data = dates_registration(data)  # Calling dates regist. to register formatted reg and exp dates
         data = set_status(data)
-        new_excel_name = f"edited_{excel_file_name}.xlsx"
+        new_excel_name = f"editied_{excel_file_name}.xlsx"
         data.to_excel(new_excel_name, index=False)
 
         API_URL = "http://127.0.0.1:8000/readExcel/"
@@ -83,29 +83,27 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
                         indices_to_drop.extend(data[condition].index.tolist()) # Adding the indices to the empty lst
                     else:
                         continue
-            
-
-            # FIXME: fix names after inserting them from python
-            # TODO: ADD TODO TREE AND Error lens on the laptop
-            modified_names_lst = []
-            for name in range(len(no_mem_email_lst)):
-                name_lst = []
-                name_lst = no_mem_email_lst[name].split()
-                modified_name = ""
-                for i in range(len(name_lst)):
-                    modified_name += name_lst[i].capitalize()
-                    modified_name += " "
-                    print(modified_name)
-                    modified_name = modified_name.split()
-                    modified_names_lst.append(modified_name)
-                
-
-            for mod_name in modified_names_lst:
+            for no_member in no_mem_email_lst:
                 for reg_member in all_members:
-                    if mod_name == reg_member.member_name:
-                        condition = data["member_name"] == mod_name
+                    if no_member == reg_member.member_name:
+                        condition = data["member_name"] == no_member
                         indices_to_drop.extend(data[condition].index.tolist())
             data = data.drop(indices_to_drop)  # Dropping duplicated rows
+            
+            names_lst = data["member_name"].tolist()
+            print(data)
+            modified_names_lst = []
+            for name in names_lst:
+                modified_name = ""
+                name = name.lower()
+                name_lst = []
+                name_lst.append(name.split())
+                for i in range(len(name_lst[0])):
+                    modified_name += name_lst[0][i].capitalize()
+                    modified_name += " "
+                modified_name = modified_name.strip()
+                modified_names_lst.append(modified_name)
+            
             data["member_name"] = modified_names_lst
             return data
         
@@ -126,7 +124,13 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
                     return True  # Returning True to allow new member insertion in the db
                 
             else:
-                if member_name.count(" ") >= 2:
+                flag = True
+                for char in member_name:
+                    if char.isdigit():
+                        flag = False
+                    else:
+                        continue
+                if member_name.count(" ") >= 2 and flag == True():
                     for reg_name in all_members:
                         if member_name.lower() == (reg_name.member_name).lower():
                             found_counter += 1 
@@ -137,7 +141,7 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
                     else:
                         return f"Add {member_name}"  # Returning True to allow new member insertion in the db 
                 else:
-                    return "Name isn't long enough"
+                    return "Please enter a valid name"
     except Exception as e:
         print(f"An unexcepted error has happened: {e}")
         print("-" * 30)

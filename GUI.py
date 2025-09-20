@@ -119,6 +119,9 @@ def create_hover_functions(button_widget, hover_color, leave_color):
 def clean_container():
     for widget in main_screen_frame.winfo_children():
         widget.destroy() 
+    
+def remove_msg(msg):
+    main_screen_frame.after(3000, lambda: msg.grid_remove())
 
 
 
@@ -170,18 +173,17 @@ def import_excel_file(event=None):
 
         status = SideFunctions.import_excel_file(filePath)
         excel_file_name = os.path.splitext(os.path.basename(filePath))[0]
-        successMsg = Label(main_screen_frame, text=excel_file_name+" got added sucessfully", font=("calibri", 20), bg="#ffda7c")
-        failMsg = Label(main_screen_frame, text=excel_file_name+" didn't get added", font=("calibri", 20), bg="#ffda7c")
+        successMsg = Label(main_screen_frame, text=excel_file_name+" got added sucessfully", font=("calibri", 20), bg="#ffda7c", fg="green")
+        failMsg = Label(main_screen_frame, text=excel_file_name+" didn't get added", font=("calibri", 20), bg="#ffda7c", fg="red")
         if filePath:
             status = SideFunctions.import_excel_file(filePath)
             excel_file_name = os.path.splitext(os.path.basename(filePath))[0]
             if status == True:
                 successMsg.grid(row=2, column=0,columnspan=2, sticky="w", padx=(300,0))
-                main_screen_frame.after(3000, lambda: successMsg.grid_remove())
+                remove_msg(successMsg)
             else:
                 failMsg.grid(row=2, column=0, columnspan=2, sticky="w", padx=(300,0))
-                main_screen_frame.after(3000, lambda: failMsg.grid_remove())
-
+                remove_msg(failMsg)
 
     chooseFileButton = Button(main_screen_frame, background="#ffda7c", 
                               font=("oswald", 25), activebackground="#fac84a",
@@ -242,14 +244,11 @@ def regist_new_member(event = None):
 
         request = requests.post(API_URL, json=new_member_dict, timeout=10)
 
-        def remove_msg(msg):
-             main_screen_frame.after(3000, lambda: msg.grid_remove())
-
         if request.text == f"\"{new_member_dict["member_name"]} got added successfully\"":
-            global successMsg
             msg = Label(main_screen_frame,
                         text=new_member_dict["member_name"]+" got added successfully",
                         bg="#ffda7c",
+                        fg="green",
                         font=("arial", 15))
             msg.grid(row=6, column=1, pady=(10,0), sticky="w")
             remove_msg(msg)
@@ -258,14 +257,16 @@ def regist_new_member(event = None):
                         text=new_member_dict["member_name"] + " is already in the database",
                         font=("Arial", 18),
                         bg="#ffda7c",
+                        fg="red",
                         state="normal")
             msg.grid(row=6, column=1, pady=(10,0), sticky="w")
             remove_msg(msg)
-        elif request.text == f"\"Name isn't long enough\"":
+        elif request.text == f"\"Please enter a valid name\"":
             msg = Label(main_screen_frame,
-                                text="Name isn't long enough",
+                                text="Please enter a valid name",
                                 font=("arial", 15),
                                 bg="#ffda7c",
+                                fg="red",
                                 state="normal")
             msg.grid(row=6, column=1, pady=(10,0), sticky="w")
             remove_msg(msg)
@@ -274,6 +275,7 @@ def regist_new_member(event = None):
                         text=new_member_dict["member_name"] + " didn't get added",
                         font=("Arial", 18),
                         bg="#ffda7c",
+                        fg= "red",
                         state="normal")
             msg.grid(row=6, column=1, pady=(10,0), sticky="w")
             remove_msg(msg)
@@ -301,7 +303,7 @@ def regist_new_member(event = None):
 
         
         entry = Entry(main_screen_frame, font=15, width=20)
-        entry.grid(row=row, column=0, pady=5, sticky="e", padx=(0,60)) 
+        entry.grid(row=row, column=0, pady=5, sticky="e") 
         entries[label_text] = entry
     
     submit_button = Button(main_screen_frame,
