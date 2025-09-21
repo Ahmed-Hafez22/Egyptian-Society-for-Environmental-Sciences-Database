@@ -136,7 +136,8 @@ def show_operation_menu():
 
     buttons_data = [
         ("1-Import Excel File", import_excel_file, 2),
-        ("2-Register New Member", regist_new_member, 3)
+        ("2-Register New Member", regist_new_member, 3),
+        ("3-Show Members", show_members, 4)
     ]
 
     buttons = {}
@@ -182,26 +183,27 @@ def import_excel_file(event=None):
                 msg.grid(row=2, column=0, columnspan=2, sticky="w", padx=(300,0))
                 remove_msg(msg)
 
-    chooseFileButton = Button(main_screen_frame, background="#ffda7c", 
-                              font=("oswald", 25), activebackground="#fac84a",
-                              text="Choose a file",
-                              command=open_excel_file,
-                              relief="groove")
-    hover_enter_chooseFileButton, hover_leave_chooseFileButton = create_hover_functions(chooseFileButton, "#fce5aa", "#ffda7c")
-    chooseFileButton.bind("<Enter>", hover_enter_chooseFileButton)
-    chooseFileButton.bind("<Leave>", hover_leave_chooseFileButton)
-    chooseFileButton.grid(row=2, column=0, padx=(40,0), pady=(10,0), sticky="nw")
 
-    returnToMainMenuButton = Button(main_screen_frame, background="#ffda7c",
-                                    font=("oswald", 25),
-                                    activebackground="#fac84a",
-                                    text="Return",
-                                    command=show_operation_menu,
-                                    relief="groove")
-    hover_enter_returnButton, hover_leave_returnButton = create_hover_functions(returnToMainMenuButton, "#fce5aa", "#ffda7c")
-    returnToMainMenuButton.bind("<Enter>", hover_enter_returnButton)
-    returnToMainMenuButton.bind("<Leave>", hover_leave_returnButton)
-    returnToMainMenuButton.grid(row=3, column=0, padx=(40,0), pady=(10,0), sticky="nw")
+    buttons_data = [
+        ("Choose a file", open_excel_file, 2),
+        ("Return", show_operation_menu, 3)
+    ]
+
+    buttons = {}
+
+    for button_text, button_command, button_row in buttons_data:
+        button = Button(main_screen_frame,
+                        text=button_text,
+                        bg="#ffda7c",
+                        relief="groove",
+                        activebackground="#fac84a",
+                        font=("oswald", 25),
+                        command=button_command)
+        button.grid(row=button_row, column=0, padx=(40,0), pady=(10,0), sticky="nw")
+        hover_enter, hover_leave = create_hover_functions(button, "#fce5aa", "#ffda7c")
+        button.bind("<Enter>", hover_enter)
+        button.bind("<Leave>", hover_leave)
+        buttons[button_text] = button
 
 
 def regist_new_member(event = None):
@@ -303,39 +305,30 @@ def regist_new_member(event = None):
         entry.grid(row=row, column=0, pady=5, sticky="e") 
         entries[label_text] = entry
     
-    submit_button = Button(main_screen_frame,
-                           text="Submit",
-                           relief="groove",
-                           font=("oswald", 15),
-                           command=submit_new_member_info,
-                           activebackground="#fac84a",
-                           background="#ffda7c",
-                           )
-    hover_enter_submitButton, hover_leave_submitButton = create_hover_functions(submit_button, "#fce5aa", "#ffda7c")
-    submit_button.bind("<Enter>", hover_enter_submitButton)
-    submit_button.bind("<Leave>", hover_leave_submitButton)
-    submit_button.grid(row=6, column=0, padx=(100,0), pady=(10,0), sticky="w")
 
+    buttons_data = [
+        ("Submit", submit_new_member_info, 100),
+        ("Return", show_operation_menu, 200)
+    ]
+    buttons = {}
 
-    returnToMainMenuButton = Button(main_screen_frame,
-                                    text="Return",
-                                    relief="groove",
-                                    font=("oswald", 15),
-                                    background="#ffda7c",
-                                    activebackground="#fac84a",
-                                    command=show_operation_menu)
-    hover_enter_returnButton, hover_leave_returnButton = create_hover_functions(returnToMainMenuButton, "#fce5aa", "#ffda7c")
-    returnToMainMenuButton.bind("<Enter>", hover_enter_returnButton)
-    returnToMainMenuButton.bind("<Leave>", hover_leave_returnButton)
-    returnToMainMenuButton.grid(row=6, column=0, padx=(200,0), pady=(10,0), sticky="w")
-    
-    
-    
-    
+    for button_text, button_command, button_xpading in buttons_data:
+        button = Button(main_screen_frame,
+                        text=button_text,
+                        relief="groove",
+                        font=("oswald", 15),
+                        command=button_command,
+                        bg="#ffda7c",
+                        activebackground="#fac84a")
+        button.grid(row=6, column=0, padx=(button_xpading, 0), pady=(10,0), sticky="w")
+        hover_enter, hover_leave = create_hover_functions(button, "#fce5aa", "#ffda7c")
+        button.bind("<Enter>", hover_enter)
+        button.bind("<Leave>", hover_leave)
+        buttons[button_text]= button
 
-
-
-
-
+def show_members(event=None):
+    clean_container()
+    ESES_label = Label(main_screen_frame, text="ESES Database", font=("courier new", 30), background="#ffda7c")
+    ESES_label.grid(row=0, column=0, columnspan=4, sticky="ew", pady=(10,0))
 
 window.mainloop()

@@ -12,10 +12,11 @@ def import_excel_file(filePath): # importing the data into th db
         )
         # ----------------------------------------------
         data = check_emails(data)
-        data = check_duplicates(data)  # Calling check dups to ensure no duplicate members get signed in
+        data = modify_name(name)
         data = phone_num_registration(data)
         data = dates_registration(data)  # Calling dates regist. to register formatted reg and exp dates
         data = set_status(data)
+        data = check_duplicates(data)  # Calling check dups to ensure no duplicate members get signed in
         new_excel_name = f"editied_{excel_file_name}.xlsx"
         data.to_excel(new_excel_name, index=False)
 
@@ -62,58 +63,64 @@ def check_emails(data):
         print(f"An unexpected error has occured: {e}")
         print("-" * 30)
 #------------------------------------------------------------
+def modify_name(data):
+    names = data["member_name"].tolist()
+    modified_names_lst = []
+    for name in names:
+        name_lst = []
+        name_lst = name.split()
+        modified_name = ""
+        for part in name_lst:
+            modified_name += part.lower().capitalize()
+            modified_name += " "
+        modified_name.strip()
+        modified_names_lst.append(modified_name)
+
+    data["member_name"] = modified_names_lst
+    return data
+#------------------------------------------------------------
 def check_duplicates(data):  # A function to check on the duplicates by using users email
     try:
         all_members = db_session.query(Member).all()
-        if isinstance(data, pd.DataFrame):  # An if statement
-            indices_to_drop = []# An empty list which will be filled later with the index of the duplicated names to drop them from the dataframe
-            not_editied_data_lst = data[["member_email", "member_name"]].values.tolist() # putting the new emails in a list to operate on them
-            data_lst = []
+        if isinstance(data, pd.DataFrame):
+            datat_lst = data[["member_email", "member_name"]].values.tolist()
 
-            for member_info in not_editied_data_lst:
-                for info in member_info:
-                    if info.count("@") > 0 or info == "Not Provided":
-                        temp = info
-                    else:
-                        name_lst = []
-                        name_lst = info.split()
-                        modified_name = ""
-                        for name in name_lst:
-                            name = name.lower()
-                            modified_name += name.capitalize()
-                            modified_name += " "
-                        modified_name.strip()
-                        data_lst.append([temp, modified_name])
-             
-            for i in range(len(data["member_name"])):
-                data.loc[i, "member_name"] = data_lst[i][1]
-
-            potential_mem_emails = []
-            no_mem_email_lst = []
-            for data_entry in range(len(data_lst)):
-                if data_lst[data_entry][0] != "Not Provided":
-                    potential_mem_emails.append(data_lst[data_entry][0])
+            haveEmailLst = []
+            noEmailLst = []
+            indicies_to_drop = set()
+            
+            for data_entry in datat_lst:
+                if data_entry[0] != "Not Provided":
+                    haveEmailLst.append(data_entry[0])
                 else:
-                    no_mem_email_lst.append(data_lst[data_entry][1])
-                    continue
-            for pot_email in potential_mem_emails:# An outer for loop to iterate reg members on each new member
-                for reg_email in all_members:  # An inner for loop to iterate reg members on each new member
-                    if (pot_email == reg_email.member_email):  # If statement if the potential email matches a reg. email its indexing will be stored in an list
-                        condition = data["member_email"] == pot_email # The condition to get the potential email index
-                        indices_to_drop.extend(data[condition].index.tolist()) # Adding the indices to the empty lst
+                    noEmailLst.append(data_entry[1])
+
+            for email in haveEmailLst:
+                for member_info in all_members:
+                    if email == member_info.member_email:
+                        condition = data["member_email"] == email
+                        print(f"Condition for email {email}: {condition}")
+                        print(f"Indices: {data[condition].index.tolist()}")
+                        indicies_to_drop.extend(data[condition].index.tolist())
                     else:
                         continue
-            for no_member in no_mem_email_lst:
-                for reg_member in all_members:
-                    if no_member == reg_member.member_name:
-                        condition = data["member_name"] == no_member
-                        indices_to_drop.extend(data[condition].index.tolist())
-            data = data.drop(indices_to_drop)  # Dropping duplicated rows
+
+            for name in noEmailLst:
+                for member_info in all_members:
+                    if name.lower().strip() == (member_info.member_name).lower().strip():
+                        condition = data["member_name"] == name
+                        print(f"Condition for name {name}: {condition}")
+                        print(f"Indices: {data[condition].index.tolist()}")
+                        indicies_to_drop.extend(data[condition].index.tolist())
+                    else:
+                        continue
+
+            data = data.drop(indicies_to_drop)
             return data
         
         elif isinstance(data, object):
             member_email = getattr(data, 'member_email', None)
-            member_name = getattr(data, 'member_name', None)
+            member_name = getattr(data, 'member_name', None) 
             found_counter = 0  # A counter to check on single member input
 
             if member_email != "Not Provided":
@@ -123,9 +130,9 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
                     else:
                         continue
                 if found_counter > 0:
-                    return False  # Returning false to refuse the insertion of the new member
+                    return f"{member_name} is already in the database"  # Returning false to refuse the insertion of the new member
                 else:
-                    return True  # Returning True to allow new member insertion in the db
+                    return f"Add {member_name}"  # Returning True to allow new member insertion in the db
 
             else:
                 flag = True
