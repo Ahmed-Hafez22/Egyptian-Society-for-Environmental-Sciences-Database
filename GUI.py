@@ -170,20 +170,17 @@ def import_excel_file(event=None):
             title="Select Excel File",
             filetypes=[("Excel files", "*.xlsx *.xls"), ("All files", "*.*")]
         )
-
-        status = SideFunctions.import_excel_file(filePath)
-        excel_file_name = os.path.splitext(os.path.basename(filePath))[0]
-        successMsg = Label(main_screen_frame, text=excel_file_name+" got added sucessfully", font=("calibri", 20), bg="#ffda7c", fg="green")
-        failMsg = Label(main_screen_frame, text=excel_file_name+" didn't get added", font=("calibri", 20), bg="#ffda7c", fg="red")
         if filePath:
             status = SideFunctions.import_excel_file(filePath)
             excel_file_name = os.path.splitext(os.path.basename(filePath))[0]
             if status == True:
-                successMsg.grid(row=2, column=0,columnspan=2, sticky="w", padx=(300,0))
-                remove_msg(successMsg)
+                msg = Label(main_screen_frame, text=excel_file_name+" got added sucessfully", font=("calibri", 20), bg="#ffda7c", fg="green")
+                msg.grid(row=2, column=0,columnspan=2, sticky="w", padx=(300,0))
+                remove_msg(msg)
             else:
-                failMsg.grid(row=2, column=0, columnspan=2, sticky="w", padx=(300,0))
-                remove_msg(failMsg)
+                msg = Label(main_screen_frame, text=excel_file_name+" didn't get added", font=("calibri", 20), bg="#ffda7c", fg="red")
+                msg.grid(row=2, column=0, columnspan=2, sticky="w", padx=(300,0))
+                remove_msg(msg)
 
     chooseFileButton = Button(main_screen_frame, background="#ffda7c", 
                               font=("oswald", 25), activebackground="#fac84a",

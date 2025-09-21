@@ -67,14 +67,34 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
         all_members = db_session.query(Member).all()
         if isinstance(data, pd.DataFrame):  # An if statement
             indices_to_drop = []# An empty list which will be filled later with the index of the duplicated names to drop them from the dataframe
-            emails_lst = data[["member_email", "member_name"]].values.tolist()  # putting the new emails in a list to operate on them
+            not_editied_data_lst = data[["member_email", "member_name"]].values.tolist() # putting the new emails in a list to operate on them
+            data_lst = []
+
+            for member_info in not_editied_data_lst:
+                for info in member_info:
+                    if info.count("@") > 0 or info == "Not Provided":
+                        temp = info
+                    else:
+                        name_lst = []
+                        name_lst = info.split()
+                        modified_name = ""
+                        for name in name_lst:
+                            name = name.lower()
+                            modified_name += name.capitalize()
+                            modified_name += " "
+                        modified_name.strip()
+                        data_lst.append([temp, modified_name])
+             
+            for i in range(len(data["member_name"])):
+                data.loc[i, "member_name"] = data_lst[i][1]
+
             potential_mem_emails = []
             no_mem_email_lst = []
-            for email in range(len(emails_lst)):
-                if emails_lst[email][0] != "Not Provided":
-                    potential_mem_emails.append(emails_lst[email][0])
+            for data_entry in range(len(data_lst)):
+                if data_lst[data_entry][0] != "Not Provided":
+                    potential_mem_emails.append(data_lst[data_entry][0])
                 else:
-                    no_mem_email_lst.append(emails_lst[email][1])
+                    no_mem_email_lst.append(data_lst[data_entry][1])
                     continue
             for pot_email in potential_mem_emails:# An outer for loop to iterate reg members on each new member
                 for reg_email in all_members:  # An inner for loop to iterate reg members on each new member
@@ -89,22 +109,6 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
                         condition = data["member_name"] == no_member
                         indices_to_drop.extend(data[condition].index.tolist())
             data = data.drop(indices_to_drop)  # Dropping duplicated rows
-            
-            names_lst = data["member_name"].tolist()
-            print(data)
-            modified_names_lst = []
-            for name in names_lst:
-                modified_name = ""
-                name = name.lower()
-                name_lst = []
-                name_lst.append(name.split())
-                for i in range(len(name_lst[0])):
-                    modified_name += name_lst[0][i].capitalize()
-                    modified_name += " "
-                modified_name = modified_name.strip()
-                modified_names_lst.append(modified_name)
-            
-            data["member_name"] = modified_names_lst
             return data
         
         elif isinstance(data, object):
@@ -122,7 +126,7 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
                     return False  # Returning false to refuse the insertion of the new member
                 else:
                     return True  # Returning True to allow new member insertion in the db
-                
+
             else:
                 flag = True
                 for char in member_name:
@@ -130,7 +134,7 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
                         flag = False
                     else:
                         continue
-                if member_name.count(" ") >= 2 and flag == True():
+                if member_name.count(" ") >= 2 and flag == True:
                     for reg_name in all_members:
                         if member_name.lower() == (reg_name.member_name).lower():
                             found_counter += 1 
