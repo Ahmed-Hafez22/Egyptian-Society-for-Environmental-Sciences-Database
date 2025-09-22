@@ -12,7 +12,7 @@ def import_excel_file(filePath): # importing the data into th db
         )
         # ----------------------------------------------
         data = check_emails(data)
-        data = modify_name(name)
+        data = modify_name(data)
         data = phone_num_registration(data)
         data = dates_registration(data)  # Calling dates regist. to register formatted reg and exp dates
         data = set_status(data)
@@ -83,39 +83,36 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
     try:
         all_members = db_session.query(Member).all()
         if isinstance(data, pd.DataFrame):
-            datat_lst = data[["member_email", "member_name"]].values.tolist()
+            data_lst = data[["member_email", "member_name"]].values.tolist()
 
             haveEmailLst = []
             noEmailLst = []
-            indicies_to_drop = set()
-            
-            for data_entry in datat_lst:
-                if data_entry[0] != "Not Provided":
-                    haveEmailLst.append(data_entry[0])
+            indices_to_drop = []
+            print(f"Type of data: {type(data)}")
+            for email, name in data_lst:
+                if email != "Not Provided":
+                    haveEmailLst.append(email)
                 else:
-                    noEmailLst.append(data_entry[1])
+                    noEmailLst.append(name)
 
+            
             for email in haveEmailLst:
                 for member_info in all_members:
                     if email == member_info.member_email:
                         condition = data["member_email"] == email
-                        print(f"Condition for email {email}: {condition}")
-                        print(f"Indices: {data[condition].index.tolist()}")
-                        indicies_to_drop.extend(data[condition].index.tolist())
+                        indices_to_drop.extend(data.index[condition].values.tolist())
                     else:
                         continue
 
             for name in noEmailLst:
                 for member_info in all_members:
-                    if name.lower().strip() == (member_info.member_name).lower().strip():
+                    if name and member_info.member_name and name.lower().strip() == (member_info.member_name).lower().strip():
                         condition = data["member_name"] == name
-                        print(f"Condition for name {name}: {condition}")
-                        print(f"Indices: {data[condition].index.tolist()}")
-                        indicies_to_drop.extend(data[condition].index.tolist())
+                        indices_to_drop.extend(data.index[condition].values.tolist())
                     else:
                         continue
-
-            data = data.drop(indicies_to_drop)
+        
+            data = data.drop(indices_to_drop)
             return data
         
         elif isinstance(data, object):
@@ -143,7 +140,7 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
                         continue
                 if member_name.count(" ") >= 2 and flag == True:
                     for reg_name in all_members:
-                        if member_name.lower() == (reg_name.member_name).lower():
+                        if member_name.lower().strip() == (reg_name.member_name).lower().strip():
                             found_counter += 1 
                         else:
                             continue
