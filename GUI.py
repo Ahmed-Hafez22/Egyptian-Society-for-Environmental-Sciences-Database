@@ -234,9 +234,9 @@ def regist_new_member(event = None):
         }
         new_member_dict["member_name"] = new_member_dict["member_name"].lower() 
         name = ""
-        name_lst = new_member_dict["member_name"].split()
-        for i in range(len(name_lst)):
-            name += name_lst[i].capitalize()
+        name_lst_of_all_members = new_member_dict["member_name"].split()
+        for i in range(len(name_lst_of_all_members)):
+            name += name_lst_of_all_members[i].capitalize()
             name += " "
         name = name.strip()
         new_member_dict["member_name"] = name  
@@ -328,7 +328,72 @@ def regist_new_member(event = None):
 
 def show_members(event=None):
     clean_container()
+    API_URL = "http://127.0.0.1:8000/Show-Members"
+    request = requests.get(API_URL)
+    members = request.json()
+
+    main_screen_frame.columnconfigure(0, weight=0)
+
+    lst_of_all_members = [
+        ("ID", "Member Name", "Email", "Phone Number", "Registration Date", "Expiration Date", "Status"),
+    ]
+    for member in members:
+        lst_of_all_members.append(tuple(member.values()))
+    num_columns = len(lst_of_all_members[0])
+
     ESES_label = Label(main_screen_frame, text="ESES Database", font=("courier new", 30), background="#ffda7c")
-    ESES_label.grid(row=0, column=0, columnspan=4, sticky="ew", pady=(10,0))
+    ESES_label.grid(row=0, column=0, columnspan=7, sticky="ew", pady=(10,0))
+    show_label = Label(main_screen_frame, text="All members:-", font=("Arial", 30), background="#ffda7c")
+    show_label.grid(row=1, column=0, sticky="nw", padx=(10,0))
+
+    # def create_table(total_rows, total_columns, lst_of_all_members):
+    #      for member in range(total_rows):
+    #           for info in range(total_columns):
+    #             l = Label(main_screen_frame,
+    #                       text=lst_of_all_members[member][info],
+    #                       font=("Arial", 15, "bold"),
+    #                       bg="#ffda7c",
+    #                       relief="groove",
+    #                       borderwidth=1,
+    #                       width=23)
+    #             l.grid(row=2 + member, column=info)
+
+    # create_table(len(lst_of_all_members), num_columns, lst_of_all_members)
+
+    def create_treeview_table(lst):
+    # Create Treeview with columns
+        columns = lst[0]  # Header row
+        style = ttk.Style()
+        style.configure("Treeview",
+                        background="#ffda7c",
+                        fieldbackground = "#ffda7c")
+        tree = ttk.Treeview(main_screen_frame, columns=columns, show="headings", height=15, style="Treeview")
+        
+        # Define column headings and widths
+        column_widths = [50, 150, 200, 120, 120, 120, 80]  # Adjust as needed
+        
+        for i, col in enumerate(columns):
+            tree.heading(col, text=col)
+            tree.column(col, width=column_widths[i], minwidth=50)
+        
+        # Add data rows (skip header row)
+        for row_data in lst[1:]:
+            tree.insert("", "end", values=row_data)
+        
+        # Add scrollbars
+        v_scrollbar = Scrollbar(main_screen_frame, orient="vertical", command=tree.yview)
+        h_scrollbar = Scrollbar(main_screen_frame, orient="horizontal", command=tree.xview)
+        tree.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+        
+        # Grid everything
+        tree.grid(row=2, column=0, columnspan=len(lst[0]), sticky="nsew")
+        v_scrollbar.grid(row=2, column=len(lst[0]), sticky="ns")
+        h_scrollbar.grid(row=3, column=0, columnspan=len(lst[0]), sticky="ew")
+        
+        # Configure grid weights for resizing
+        main_screen_frame.grid_rowconfigure(2, weight=1)
+        main_screen_frame.grid_columnconfigure(0, weight=1)
+
+    create_treeview_table(lst_of_all_members)
 
 window.mainloop()

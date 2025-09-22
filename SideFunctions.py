@@ -88,7 +88,6 @@ def check_duplicates(data):  # A function to check on the duplicates by using us
             haveEmailLst = []
             noEmailLst = []
             indices_to_drop = []
-            print(f"Type of data: {type(data)}")
             for email, name in data_lst:
                 if email != "Not Provided":
                     haveEmailLst.append(email)
@@ -258,27 +257,40 @@ def dates_registration(data):
 #------------------------------------------------------------
 def set_status(data):  # Setting the status for each user depending on the date
     try:
-        current_date = datetime.now().strftime("%d %m %Y")
-        status_lst = []
+        current_date = datetime.now()
+        
         if isinstance(data, pd.DataFrame):
-            for date in data['exp_date']:
-                if date > current_date:
+            # Handle DataFrame input
+            status_list = []
+            for exp_date_str in data['exp_date']:
+                # Parse the expiration date string into a datetime object
+                exp_date = datetime.strptime(exp_date_str, "%d %m %Y")
+                
+                # Determine status based on date comparison
+                if exp_date >= current_date:
                     status = "Active"
-                    status_lst.append(status)
-                elif date < current_date:
+                else:
                     status = "Inactive"
-                    status_lst.append(status)
-            data['status'] = status_lst
+                status_list.append(status)
+            
+            data['status'] = status_list
             return data
-        elif isinstance(data, object):
-            exp_date = getattr(data, 'exp_date', None)
-            if exp_date > current_date:
-                status = "Active"
+            
+        elif isinstance(data, object):  # Use your actual Member class
+            # Handle single Member object
+            exp_date = getattr(data, "exp_date, None")
+            if not data.exp_date:
+                return "Inactive"  # Or whatever default you prefer
+            
+            exp_date = datetime.strptime(data.exp_date, "%d %m %Y")
+            
+            if exp_date >= current_date:
+                return "Active"
             else:
-                status = "Inactive"
-            return status    
+                return "Inactive"
+                
     except Exception as e:
-        print(f"An unexpected error has occured: {e}")
+        print(f"Error in set_status: {e}")
         return None
 #------------------------------------------------------------
 def reshape_arabic_text(data):# A function to to reshape the arabic text

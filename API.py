@@ -125,11 +125,11 @@ def show_members(db_session: sessionmaker = Depends(get_db)):
             member_dict = {
                 "id": member.id,
                 "member_name": member.member_name,
+                "member_email": member.member_email,
                 "phone_number": member.phone_number,
                 "reg_date": member.reg_date,
                 "exp_date": member.exp_date,
-                "status": member.status,
-                "member_email": member.member_email
+                "status": member.status
             }
             processedMembers.append(member_dict)
         return processedMembers
@@ -159,11 +159,11 @@ def search_for_member(member_name: str, db_session: sessionmaker = Depends(get_d
             member_dict = {
                 "id": member.id,
                 "member_name": member.member_name,
+                "member_email": member.member_email,
                 "phone_number": member.phone_number,
                 "reg_date": member.reg_date,
                 "exp_date": member.exp_date,
-                "status": member.status,
-                "member_email": member.member_email
+                "status": member.status
             }
             pot_processedMem.append(member_dict)
         return pot_processedMem

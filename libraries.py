@@ -19,3 +19,4 @@ from PIL import Image, ImageTk
 from time import sleep
 import requests
 import builtins
+from tkinter import ttk
