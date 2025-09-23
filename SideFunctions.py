@@ -276,9 +276,8 @@ def set_status(data):  # Setting the status for each user depending on the date
             data['status'] = status_list
             return data
             
-        elif isinstance(data, object):  # Use your actual Member class
+        elif isinstance(data, Member):  # Use your actual Member class
             # Handle single Member object
-            exp_date = getattr(data, "exp_date, None")
             if not data.exp_date:
                 return "Inactive"  # Or whatever default you prefer
             

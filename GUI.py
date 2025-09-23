@@ -120,24 +120,35 @@ def clean_container():
     for widget in main_screen_frame.winfo_children():
         widget.destroy() 
     
+    for i in range(20):
+        main_screen_frame.rowconfigure(i, weight=0)
+    for i in range(7):
+        main_screen_frame.columnconfigure(i, weight=0)
+    
 def remove_msg(msg):
     main_screen_frame.after(3000, lambda: msg.grid_remove())
 
-
+def show_eses_label():
+    eses_label = Label(main_screen_frame, text="ESES Database", font=("courier new", 30), bg="#ffda7c", anchor="center")
+    eses_label.grid(row=0, column=0, columnspan=4, sticky="ew", pady=(10,0))
+    
+def show_label(text):
+    label = Label(main_screen_frame,
+          text=text,
+          font=("Arial", 30),
+          bg="#ffda7c").grid(row=1, column=0, padx=(10,0),  sticky="nw")
 
 def show_operation_menu():
     clean_container()
-    Label(main_screen_frame, text="ESES Database", font=("courier new", 30), bg="#ffda7c", anchor="center").grid(row=0, column=0, columnspan=4, sticky="n", pady=(10,0))
     main_screen_frame.columnconfigure(0, weight=1)
-    Label(main_screen_frame,
-          text="Operation List:-",
-          font=("Arial", 30),
-          bg="#ffda7c").grid(row=1, column=0, padx=(10,0),  sticky="nw")
+    show_eses_label()
+    show_label("Operations List:-")
 
     buttons_data = [
         ("1-Import Excel File", import_excel_file, 2),
         ("2-Register New Member", regist_new_member, 3),
-        ("3-Show Members", show_members, 4)
+        ("3-Show Members", show_members, 4),
+        ("4-Search for Member", search_for_member, 5)
     ]
 
     buttons = {}
@@ -163,8 +174,8 @@ def import_excel_file(event=None):
     main_screen_frame.columnconfigure(1, weight=0)  # Message column - don't expand
     main_screen_frame.columnconfigure(2, weight=0)  # Message column - don't expand
     main_screen_frame.columnconfigure(3, weight=1)  # Message column - don't expand
-    Label(main_screen_frame, text="ESES Database", font=("courier new", 30), bg="#ffda7c", anchor="center").grid(row=0, column=0, columnspan=4, sticky="n", pady=(10,0))
-    Label(main_screen_frame, text="Import Excel File:", font=("Arial", 30), bg="#ffda7c").grid(row=1, column=0, padx=(10,0), sticky="nw")
+    show_eses_label()
+    show_label("Import Excel File:")
     def open_excel_file(event=None):
 
         filePath = filedialog.askopenfilename(
@@ -279,11 +290,9 @@ def regist_new_member(event = None):
             msg.grid(row=6, column=1, pady=(10,0), sticky="w")
             remove_msg(msg)
 
-    ESES_label = Label(main_screen_frame, text="ESES Database", font=("courier new", 30), background="#ffda7c")
-    ESES_label.grid(row=0, column=0, columnspan=4, sticky="ew", pady=(10,0))
+    show_eses_label()
     
-    reg_label = Label(main_screen_frame, text="Register a new member:-", font=("Arial", 30), background="#ffda7c")
-    reg_label.grid(row=1, column=0, sticky="nw", padx=(10,0))
+    show_label("Register New Member:")
     
     fields = [
         ("Member Name:",          2),
@@ -339,38 +348,25 @@ def show_members(event=None):
     ]
     for member in members:
         lst_of_all_members.append(tuple(member.values()))
-    num_columns = len(lst_of_all_members[0])
+        
+    global num_of_rows
+    num_of_rows = len(lst_of_all_members)
 
-    ESES_label = Label(main_screen_frame, text="ESES Database", font=("courier new", 30), background="#ffda7c")
-    ESES_label.grid(row=0, column=0, columnspan=7, sticky="ew", pady=(10,0))
-    show_label = Label(main_screen_frame, text="All members:-", font=("Arial", 30), background="#ffda7c")
-    show_label.grid(row=1, column=0, sticky="nw", padx=(10,0))
+    show_eses_label()
+    show_label("All Members:")
 
-    # def create_table(total_rows, total_columns, lst_of_all_members):
-    #      for member in range(total_rows):
-    #           for info in range(total_columns):
-    #             l = Label(main_screen_frame,
-    #                       text=lst_of_all_members[member][info],
-    #                       font=("Arial", 15, "bold"),
-    #                       bg="#ffda7c",
-    #                       relief="groove",
-    #                       borderwidth=1,
-    #                       width=23)
-    #             l.grid(row=2 + member, column=info)
 
-    # create_table(len(lst_of_all_members), num_columns, lst_of_all_members)
-
-    def create_treeview_table(lst):
+    def create_treeview_table(lst, style_name):
     # Create Treeview with columns
         columns = lst[0]  # Header row
         style = ttk.Style()
         style.configure("Treeview",
                         background="#ffda7c",
                         fieldbackground = "#ffda7c")
-        tree = ttk.Treeview(main_screen_frame, columns=columns, show="headings", height=15, style="Treeview")
+        tree = ttk.Treeview(main_screen_frame, columns=columns, show="headings", style=style_name)
         
         # Define column headings and widths
-        column_widths = [50, 150, 200, 120, 120, 120, 80]  # Adjust as needed
+        column_widths = [15, 150, 200, 120, 120, 120, 80]  # Adjust as needed
         
         for i, col in enumerate(columns):
             tree.heading(col, text=col)
@@ -382,18 +378,67 @@ def show_members(event=None):
         
         # Add scrollbars
         v_scrollbar = Scrollbar(main_screen_frame, orient="vertical", command=tree.yview)
-        h_scrollbar = Scrollbar(main_screen_frame, orient="horizontal", command=tree.xview)
-        tree.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+        tree.configure(yscrollcommand=v_scrollbar.set)
         
         # Grid everything
-        tree.grid(row=2, column=0, columnspan=len(lst[0]), sticky="nsew")
-        v_scrollbar.grid(row=2, column=len(lst[0]), sticky="ns")
-        h_scrollbar.grid(row=3, column=0, columnspan=len(lst[0]), sticky="ew")
+        tree.grid(row=2, column=0, columnspan=len(lst[0]), sticky="nsew", pady=(0,4))
+        v_scrollbar.grid(row=2, column=len(lst[0]), sticky="ns", pady=(0,2))
         
         # Configure grid weights for resizing
         main_screen_frame.grid_rowconfigure(2, weight=1)
         main_screen_frame.grid_columnconfigure(0, weight=1)
 
-    create_treeview_table(lst_of_all_members)
+    def style_treeView():
+        style = ttk.Style()
+        style.theme_use('clam')
+        
+        style.configure("Custom.Treeview",
+                        background="#ffda7c",
+                        fieldbackground = "#ffda7c",
+                        rowheight= 25)
+        
+        style.configure("Custom.Treeview.Heading",
+                        background="#ffda7c",        # Header bg
+                        foreground="black",          # Header text
+                        font=('Arial', 12, 'bold'))
+        
+        
+        
+        return "Custom.Treeview"
+    
+    tree_style = style_treeView()
+        
+    create_treeview_table(lst_of_all_members, tree_style)
+    
+    returnButton = Button(main_screen_frame,
+                        text="Return",
+                        relief="groove",
+                        font=("oswald", 15),
+                        command=show_operation_menu,
+                        bg="#ffda7c",
+                        activebackground="#fac84a")
+    hover_enter, hover_leave = create_hover_functions(returnButton, "#fac5aa", "#ffda7c")
+    returnButton.bind("<Enter>", hover_enter)
+    returnButton.bind("<Leave>", hover_leave)
+    returnButton.grid(row=3, column=0)
 
+
+def search_for_member(event=None):
+    clean_container()
+    main_screen_frame.columnconfigure(0, weight=0)
+    main_screen_frame.columnconfigure(1, weight=0)
+    main_screen_frame.columnconfigure(3, weight=1)
+    show_eses_label()
+    show_label("Search for Member:")
+    fields = [
+       ("Member Name:", 2)
+   ]
+    
+    for text, row_pos in fields:
+        label = Label(main_screen_frame, text=text, background="#ffda7c", font=("Arial", 15))
+        label.grid(row=row_pos, column=0, pady=5, sticky="w", padx=(30, 0))  
+
+        entry = Entry(main_screen_frame, font=15, width=20)
+        entry.grid(row=row_pos, column=1, pady=5)
+    
 window.mainloop()
