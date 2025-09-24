@@ -64,20 +64,31 @@ def check_emails(data):
         print("-" * 30)
 #------------------------------------------------------------
 def modify_name(data):
-    names = data["member_name"].tolist()
-    modified_names_lst = []
-    for name in names:
-        name_lst = []
-        name_lst = name.split()
-        modified_name = ""
-        for part in name_lst:
-            modified_name += part.lower().capitalize()
-            modified_name += " "
-        modified_name.strip()
-        modified_names_lst.append(modified_name)
+    if isinstance(data, pd.DataFrame):
+        names = data["member_name"].tolist()
+        modified_names_lst = []
+        for name in names:
+            name_lst = []
+            name_lst = name.split()
+            modified_name = ""
+            for part in name_lst:
+                modified_name += part.lower().capitalize()
+                modified_name += " "
+            modified_name.strip()
+            modified_names_lst.append(modified_name)
 
-    data["member_name"] = modified_names_lst
-    return data
+        data["member_name"] = modified_names_lst
+        return data
+    elif isinstance(data, str):
+        name = ""
+        data = data.lower()
+        name_lst = data.split()
+        for i in range(len(name_lst)):
+            name += name_lst[i].capitalize()
+            name += " "
+        name = name.strip()
+        data = name
+        return data
 #------------------------------------------------------------
 def check_duplicates(data):  # A function to check on the duplicates by using users email
     try:
@@ -283,6 +294,12 @@ def set_status(data):  # Setting the status for each user depending on the date
             
             exp_date = datetime.strptime(data.exp_date, "%d %m %Y")
             
+            if exp_date >= current_date:
+                return "Active"
+            else:
+                return "Inactive"
+        elif isinstance(data, str):
+            exp_date = datetime.strptime(data, "%d %m %Y")
             if exp_date >= current_date:
                 return "Active"
             else:

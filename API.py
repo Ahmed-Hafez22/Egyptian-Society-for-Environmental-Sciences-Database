@@ -67,15 +67,6 @@ def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depen
         reg_date = member_data.get('reg_date')
         if reg_date in ["string", "", "Not Provided"]:
             reg_date = datetime.now().strftime("%d %m %Y")  # This will trigger the ORM default
-        
-        name = ""
-        member_data["member_name"] = member_data["member_name"].lower()
-        name_lst = member_data["member_name"].split()
-        for i in range(len(name_lst)):
-            name += name_lst[i].capitalize()
-            name += " "
-        name = name.strip()
-        member_data["member_name"] = name
 
         new_member = DB.Member(
             member_name = member_data['member_name'],
@@ -89,6 +80,7 @@ def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depen
         new_member.reg_date = formatted_dates[0]
         new_member.exp_date = formatted_dates[1]
         new_member.status = set_status(new_member)
+        new_member.member_name = modify_name(new_member.member_name)
       
         flag = check_duplicates(new_member)
         if flag == f"Add {new_member.member_name}":
@@ -109,9 +101,10 @@ def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depen
 def Delete_member(member_id: int, db_session: sessionmaker = Depends(get_db)):
     try:
         to_be_delted_member = db_session.query(DB.Member).filter(DB.Member.id == member_id).one()
+        member_name = to_be_delted_member.member_name
         db_session.delete(to_be_delted_member)
         db_session.commit()
-        return (f"Member with ID: {member_id} got deleted")
+        return (member_name)
     except Exception as e:
         print(f"An error has occurred: {e}")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
@@ -176,29 +169,36 @@ def update_member(member_id: int, member: schemas.UpdateMember, db_session: sess
     try:
         member_data = member.dict()
         wanted_member = db_session.query(DB.Member).filter(DB.Member.id == member_id).one()
-        if member_data['member_name'] != "string":
+        if member_data['member_name'] not in ["string", ""]:
+
+            member_data["member_name"] = modify_name(member_data["member_name"])
+
             wanted_member.member_name = member_data['member_name']
 
-        else:
-            pass
-
-        if member_data['phone_number'] != "string":
-            wanted_member.phone_number = member_data['phone_number']
-        else:
-            pass
+        if member_data['phone_number'] not in ["string", ""]:
+            member_data["phone_number"] = phone_num_registration(member_data["phone_number"])
+            if member_data["phone_number"].isdigit():
+                wanted_member.phone_number = member_data['phone_number']
+            else:
+                pass
         
-        if member_data['reg_date'] != "string":
-            wanted_member.reg_date = member_data['reg_date']
-        else:
-            pass
+        if member_data['reg_date'] not in ["string", ""]:
 
-        if member_data['member_email'] != "string":
-            wanted_member.member_email = member_data['member_email']
-        else:
-            pass
+            formatted_dates_lst = dates_registration(member_data)
+            wanted_member.reg_date = formatted_dates_lst[0]
+            wanted_member.exp_date = formatted_dates_lst[1]
+            wanted_member.status = set_status(formatted_dates_lst[1])
+
+        if member_data['member_email'] not in ["string", ""]:
+            member_data["member_email"] = check_emails(member_data["member_email"])
+            if member_data["member_email"].count("@") > 0:
+                wanted_member.member_email = member_data['member_email']
+            else:
+                pass
+
         db_session.commit()
         db_session.refresh(wanted_member)
-        return wanted_member
+        return wanted_member.member_name
     except Exception as e:
         print(f"An error has occurred: {e}")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
