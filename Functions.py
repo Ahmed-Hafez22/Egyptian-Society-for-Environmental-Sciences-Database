@@ -327,26 +327,3 @@ def set_status(data):  # Setting the status for each user depending on the date
     except Exception as e:
         print(f"Error in set_status: {e}")
         return None
-#------------------------------------------------------------
-def reshape_arabic_text(data):# A function to to reshape the arabic text
-    try:
-        text_str = str(data)  # Ensuring that the data is string
-        reshaped_text = arabic_reshaper.reshape(text_str)  # reshaping the arabic text
-        final_text = get_display(reshaped_text)  # getting the proper display
-        return final_text  # returning the final text for display
-    except Exception as e:
-        print(f"An unexpected error has occured: {e}")
-#-------------------------------------------------------------
-def show_all_members():
-    members = db_session.query(Member).all()
-    all_members = []
-    for member in members:
-        all_members.append(member.to_tuple())
-    display_rows = []
-    for row in all_members:
-        processed_members = [reshape_arabic_text(cell) for cell in row]
-        display_rows.append(processed_members)
-    table = Member.__table__
-    headers = table.columns.keys()    
-    reshpaed_headers = [reshape_arabic_text(header) for header in headers]
-    print(tabulate(display_rows, headers=reshpaed_headers, tablefmt='pipe'))

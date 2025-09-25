@@ -1,6 +1,6 @@
 from libraries import *
 import API
-import SideFunctions
+import Functions
 
 WIDTH = 1000
 HEIGHT = 500
@@ -229,7 +229,7 @@ def import_excel_file(event=None):
             filetypes=[("Excel files", "*.xlsx *.xls"), ("All files", "*.*")]
         )
         if filePath:
-            status = SideFunctions.import_excel_file(filePath)
+            status = Functions.import_excel_file(filePath)
             excel_file_name = os.path.splitext(os.path.basename(filePath))[0]
             if status == True:
                 msg = Label(main_screen_frame, text=excel_file_name+" got added sucessfully", font=("calibri", 20), bg="#ffda7c", fg="green")
@@ -289,7 +289,7 @@ def regist_new_member(event = None):
             "member_email" : entries["Member Email:"].get(),
             "reg_date" : reg_date
         }
-        new_member_dict["member_name"] = SideFunctions.modify_name(new_member_dict["member_name"]) 
+        new_member_dict["member_name"] = Functions.modify_name(new_member_dict["member_name"]) 
 
         request = requests.post(API_URL, json=new_member_dict, timeout=10)
 

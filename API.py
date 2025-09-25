@@ -3,7 +3,7 @@ from sqlalchemy import event, create_engine, String, inspect
 from sqlalchemy.orm import  Mapped, mapped_column, DeclarativeBase, sessionmaker
 import DB
 import schemas
-from SideFunctions import *
+from Functions import *
 
 app = FastAPI()
 
