@@ -170,8 +170,11 @@ def update_member(member_id: int, member: schemas.UpdateMember, db_session: sess
         member_data = member.dict()
         wanted_member = db_session.query(DB.Member).filter(DB.Member.id == member_id).one()
         if member_data['member_name'] not in ["string", ""]:
+            if member_data["member_name"].isdigit():
+                pass
+            else:
+                member_data["member_name"] = modify_name(member_data["member_name"])
 
-            member_data["member_name"] = modify_name(member_data["member_name"])
 
             wanted_member.member_name = member_data['member_name']
 

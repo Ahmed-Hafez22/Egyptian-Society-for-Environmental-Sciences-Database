@@ -80,6 +80,7 @@ def modify_name(data):
         data["member_name"] = modified_names_lst
         return data
     elif isinstance(data, str):
+        
         name = ""
         data = data.lower()
         name_lst = data.split()
@@ -233,20 +234,10 @@ def dates_registration(data):
         
 
         elif isinstance(data, object):
-            print(data)
-            reg_date_str = getattr(data, 'reg_date', None)
             dates_lst = []  # An empty lst for reg dates
-            if reg_date_str == "Not Provided" or reg_date_str is None or reg_date_str == "":
-                reg_date = datetime.today()
-                formatted_reg_date = reg_date.strftime("%d %m %Y")
-                exp_date = reg_date + timedelta(days=365)
-                formatted_exp_date = exp_date.strftime("%d %m %Y")
-                dates_lst.append(formatted_reg_date)
-                dates_lst.append(formatted_exp_date)
-                return dates_lst
-            else:
+            if type(data) == str:
                 try:
-                    cleaned_date = sub(r'\D', " ", reg_date_str)
+                    cleaned_date = sub(r'\D', " ", data)
                     day, month, year = [int(part) for part in cleaned_date.split()]
                     formatted_reg_date = datetime(year, month, day).strftime("%d %m %Y")  # formatting the reg date into a better form
                     formatted_exp_date = datetime(year + 1, month, day).strftime("%d %m %Y")  # formatting the exp date into a better form
@@ -260,7 +251,34 @@ def dates_registration(data):
                     formatted_exp_date = exp_date.strftime("%d %m %Y")
                     dates_lst.append(formatted_reg_date)
                     dates_lst.append(formatted_exp_date)
-                    return dates_lst 
+                    return dates_lst
+            else:
+                reg_date_str = getattr(data, 'reg_date', None)
+                if reg_date_str == "Not Provided" or reg_date_str is None or reg_date_str == "":
+                    reg_date = datetime.today()
+                    formatted_reg_date = reg_date.strftime("%d %m %Y")
+                    exp_date = reg_date + timedelta(days=365)
+                    formatted_exp_date = exp_date.strftime("%d %m %Y")
+                    dates_lst.append(formatted_reg_date)
+                    dates_lst.append(formatted_exp_date)
+                    return dates_lst
+                else:
+                    try:
+                        cleaned_date = sub(r'\D', " ", reg_date_str)
+                        day, month, year = [int(part) for part in cleaned_date.split()]
+                        formatted_reg_date = datetime(year, month, day).strftime("%d %m %Y")  # formatting the reg date into a better form
+                        formatted_exp_date = datetime(year + 1, month, day).strftime("%d %m %Y")  # formatting the exp date into a better form
+                        dates_lst.append(formatted_reg_date) # adding the reg date into the lst
+                        dates_lst.append(formatted_exp_date)  # adding the exp date into the lst
+                        return dates_lst
+                    except (ValueError, TypeError):
+                        reg_date = datetime.today()
+                        formatted_reg_date = reg_date.strftime("%d %m %Y")
+                        exp_date = reg_date + timedelta(days=365)
+                        formatted_exp_date = exp_date.strftime("%d %m %Y")
+                        dates_lst.append(formatted_reg_date)
+                        dates_lst.append(formatted_exp_date)
+                        return dates_lst 
                 
     except Exception as e:
         print(f"An unexpected error has occured: {e}")
