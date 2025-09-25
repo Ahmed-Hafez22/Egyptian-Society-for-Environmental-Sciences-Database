@@ -327,3 +327,4 @@ def set_status(data):  # Setting the status for each user depending on the date
     except Exception as e:
         print(f"Error in set_status: {e}")
         return None
+#Finished

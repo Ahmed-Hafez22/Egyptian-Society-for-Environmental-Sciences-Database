@@ -25,3 +25,4 @@ class UpdateMember(BaseModel):
     
 class Config:
     orm_mode = True
+#Finished
