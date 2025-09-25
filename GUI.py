@@ -516,6 +516,8 @@ def edit_member_info(value = 0, event=None):
 
             name = (request.text).removeprefix("\"").removesuffix("\"")
 
+            if member_id == None:
+                print("hi")
 
             if request.status_code == 200:
                 msg = Label(main_screen_frame,

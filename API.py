@@ -183,8 +183,8 @@ def update_member(member_id: int, member: schemas.UpdateMember, db_session: sess
                 pass
         
         if member_data['reg_date'] not in ["string", ""]:
-
-            formatted_dates_lst = dates_registration(member_data)
+            print(member_data["reg_date"])
+            formatted_dates_lst = dates_registration(member_data["reg_date"])
             wanted_member.reg_date = formatted_dates_lst[0]
             wanted_member.exp_date = formatted_dates_lst[1]
             wanted_member.status = set_status(formatted_dates_lst[1])

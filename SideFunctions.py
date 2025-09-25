@@ -233,6 +233,7 @@ def dates_registration(data):
         
 
         elif isinstance(data, object):
+            print(data)
             reg_date_str = getattr(data, 'reg_date', None)
             dates_lst = []  # An empty lst for reg dates
             if reg_date_str == "Not Provided" or reg_date_str is None or reg_date_str == "":
