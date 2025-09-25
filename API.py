@@ -7,6 +7,14 @@ from SideFunctions import *
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins for testing
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # 4. DEPENDENCY FOR DATABASE SESSIONS
 # This function will be called for each request that needs a database connection.
 def get_db():
@@ -58,6 +66,25 @@ async def read_excel(file: UploadFile = File(...), db_session: sessionmaker = De
         # Return a more informative error to the client
         raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
 
+
+@app.get("/test")
+def test_connection():
+    return {"message": "API is working!"}
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    print(f"Incoming request: {request.method} {request.url}")
+    print(f"Headers: {dict(request.headers)}")
+    response = await call_next(request)
+    return response
+
+@app.get("/")
+def simple_test():
+    return {"message": "API is working", "status": "ok"}
+
+@app.get("/test")
+def test_endpoint():
+    return {"test": "success"}
 
 @app.post("/Create-Member")
 def Create_member(member: schemas.CreateMember ,db_session: sessionmaker = Depends(get_db)):

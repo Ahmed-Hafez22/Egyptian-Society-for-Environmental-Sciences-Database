@@ -270,7 +270,7 @@ def regist_new_member(event = None):
     main_screen_frame.columnconfigure(3, weight=1)
     def submit_new_member_info(event = None):
 
-        API_URL = "http://127.0.0.1:8000/Create-Member"
+        API_URL = "http://192.168.1.183:8001/Create-Member"
 
         reg_date_str = entries["Registration Date:"].get()
         if reg_date_str:
@@ -376,7 +376,7 @@ def regist_new_member(event = None):
 
 def show_members(event=None):
     clean_container()
-    API_URL = "http://127.0.0.1:8000/Show-Members"
+    API_URL = "http://192.168.1.183:8001/Show-Members"
     request = requests.get(API_URL)
     members = request.json()
 
@@ -429,7 +429,7 @@ def search_for_member(mode="search", event=None):
     def search(event=None):
         member_name = entry.get()
         member_name = member_name.capitalize().strip()
-        API_URL = f"http://127.0.0.1:8000//Search-for-Member/Member_name?member_name={member_name}"
+        API_URL = f"http://192.168.1.183:8001//Search-for-Member/Member_name?member_name={member_name}"
         request = requests.get(API_URL)
         response = request.json()
         lst_of_members = [
@@ -503,7 +503,7 @@ def edit_member_info(value = 0, event=None):
 
         def edit(event=None):
             member_id = entries["ID:"].get()
-            API_URL = f"http://127.0.0.1:8000/Update-Member/Member_id?member_id={member_id}"
+            API_URL = f"http://192.168.1.183:8001/Update-Member/Member_id?member_id={member_id}"
 
             edited_dict = {
                 "member_name" : entries["Member Name:"].get(),
@@ -585,7 +585,7 @@ def delete_member(event=None):
 
     def delete():
         member_id = entry.get()
-        API_URL = f"http://127.0.0.1:8000/Delete-Member/{member_id}"
+        API_URL = f"http://192.168.1.183:8001/Delete-Member/{member_id}"
         request = requests.delete(API_URL)
         name = (request.text).removeprefix("\"").removesuffix("\"")
 

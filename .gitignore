@@ -5,3 +5,8 @@
 *.png
 __pycache__/
 *test_upload.py
+*.spec
+*.ico
+*.exe
+build/
+dist/

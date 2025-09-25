@@ -20,7 +20,7 @@ def import_excel_file(filePath): # importing the data into th db
         new_excel_name = f"editied_{excel_file_name}.xlsx"
         data.to_excel(new_excel_name, index=False)
 
-        API_URL = "http://127.0.0.1:8000/readExcel/"
+        API_URL = "http://192.168.1.183:8001/readExcel/"
 
 
         with builtins.open(new_excel_name, "rb") as f:
