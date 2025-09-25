@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+pandas
+openpyxl
+tkinterweb ; sys_platform == 'win32' or sys_platform == 'linux' or sys_platform == 'darwin'
+pyinstaller

@@ -1,67 +1,89 @@
-# Egyptian Society for Environmental Sciences Database
+# Egyptian Society for Environmental Sciences Database  
 
-A Python + SQLite3 project designed to manage and organize the database of the **Egyptian Society for Environmental Sciences**.  
-It provides functionality for handling data operations, database queries, and modular Python scripts in a structured way.  
+A Python + SQLAlchemy + SQLite project designed to manage and organize the database of the **Egyptian Society for Environmental Sciences**.  
+The project provides both a **Graphical User Interface (GUI)** and a **FastAPI-powered RESTful API**, making it accessible for end-users and developers.  
 
 ---
 
 ## 📂 Project Structure
-- **`Database.py`** – Handles SQLite3 database setup and connections.  
+- **`API.py`** – FastAPI application with REST endpoints.  
+- **`DB.py`** – SQLAlchemy database setup and connection handling.  
 - **`Functions.py`** – Core project functions and utilities.  
+- **`GUI.py`** – Graphical interface for interacting with the database.  
 - **`libraries.py`** – Required libraries and helper modules.  
-- **`main.py`** – Entry point to run the application.  
+- **`schemas.py`** – SQLAlchemy models and Pydantic schemas used by the API.  
+- **`ESES.db`** – SQLite database file storing persistent data.  
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started  
 
-### Prerequisites
+### Prerequisites  
 Make sure you have installed:  
 - [Python 3.8+](https://www.python.org/downloads/)  
-- SQLite3 (comes pre-installed with Python, but you can also install separately).  
+- SQLite3 (comes pre-installed with Python).  
 
-### Installation
-Clone the repository:
+### Installation  
+Clone the repository:  
 ```bash
 git clone https://github.com/Ahmed-Hafez22/Egyptian-Society-for-Environmental-Sciences-Database.git
 cd Egyptian-Society-for-Environmental-Sciences-Database
 ```
 
-Install dependencies:
+Install dependencies:  
 ```bash
 pip install -r requirements.txt
 ```
 
-*(If you don’t have a `requirements.txt`, create one by running `pip freeze > requirements.txt` after installing your packages.)*
+---
 
-### Running the Project
-Run the main file:
+## ▶️ Running the Project  
+
+### Run the GUI  
 ```bash
-python main.py
-```
+python GUI.py
+```  
+
+### Run the API  
+```bash
+uvicorn API:app --reload
+```  
+
+Default API URL: `http://127.0.0.1:8000/`  
+
+Interactive API docs available at:  
+- Swagger UI → `http://127.0.0.1:8000/docs`  
+- ReDoc → `http://127.0.0.1:8000/redoc`  
 
 ---
 
-## 📦 Features
-- Centralized SQLite3 database management system.  
-- SQL queries for storing and retrieving member data.  
-- Python functions for data operations.  
-- Organized modular Python structure.  
-- Easy to extend and maintain.  
+## 📦 Features  
+- SQLAlchemy-powered ORM for database interactions.  
+- Centralized SQLite database (`ESES.db`).  
+- Easy-to-use **GUI** for data entry, updates, and queries.  
+- **FastAPI REST API** with automatic interactive docs.  
+- **Schemas** for validating API requests and responses.  
+- Modular project structure for maintainability and scalability.  
 
 ---
 
-## 🛠 Technologies Used
+## 🛠 Technologies Used  
 - **Python 3**  
-- **SQLite3 (SQL)**  
+- **SQLite3** (database backend)  
+- **SQLAlchemy** (ORM)  
+- **Tkinter** (GUI)  
+- **FastAPI** (API)  
 
 Badges (optional):  
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)  
 ![SQLite](https://img.shields.io/badge/Database-SQLite3-green.svg)  
+![SQLAlchemy](https://img.shields.io/badge/ORM-SQLAlchemy-red.svg)  
+![GUI](https://img.shields.io/badge/Interface-Tkinter-orange.svg)  
+![API](https://img.shields.io/badge/API-FastAPI-blue.svg)  
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contributing  
 1. Fork the repository  
 2. Create a new branch (`git checkout -b feature-branch`)  
 3. Commit changes (`git commit -m "Add feature"`)  
@@ -70,5 +92,5 @@ Badges (optional):
 
 ---
 
-## 📄 License
+## 📄 License  
 This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.  
